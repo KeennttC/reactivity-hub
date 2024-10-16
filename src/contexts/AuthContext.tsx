@@ -1,11 +1,12 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
-import { getFirestore, doc, setDoc } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 
 interface User {
   id: string;
   username: string;
+  email: string;
   votedPolls: string[];
 }
 
@@ -14,7 +15,7 @@ interface AuthContextType {
   users: User[];
   register: (email: string, password: string, username: string) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -39,14 +40,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        const userData: User = {
-          id: firebaseUser.uid,
-          username: firebaseUser.email?.split('@')[0] || 'Anonymous',
-          votedPolls: []
-        };
-        setUser(userData);
+        const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data() as User;
+          setUser(userData);
+        }
       } else {
         setUser(null);
       }
@@ -63,13 +63,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const newUser: User = {
         id: userCredential.user.uid,
         username: username,
+        email: email,
         votedPolls: []
       };
       await setDoc(doc(db, 'users', newUser.id), newUser);
       setUsers([...users, newUser]);
     } catch (error) {
       console.error('Error registering user:', error);
-      throw error;
+      throw new Error('Registration failed. Please try again.');
     }
   };
 
@@ -79,7 +80,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
       console.error('Error logging in:', error);
-      throw error;
+      throw new Error('Login failed. Please check your credentials and try again.');
     }
   };
 
@@ -90,7 +91,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(null);
     } catch (error) {
       console.error('Error logging out:', error);
-      throw error;
+      throw new Error('Logout failed. Please try again.');
     }
   };
 

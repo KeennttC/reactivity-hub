@@ -14,15 +14,23 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long');
+      return;
+    }
+
     try {
       if (isLogin) {
         await login(email, password);
+        navigate('/');
       } else {
         await register(email, password, username);
+        setIsLogin(true);
+        setError('Registration successful. Please log in.');
       }
-      navigate('/');
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'An error occurred. Please try again.');
     }
   };
 
@@ -66,6 +74,7 @@ const Login: React.FC = () => {
             onChange={(e) => setPassword(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
+            minLength={8}
           />
         </div>
         <button type="submit" className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition duration-300">
