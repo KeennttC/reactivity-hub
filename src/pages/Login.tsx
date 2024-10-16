@@ -29,7 +29,7 @@ const Login: React.FC = () => {
         setIsLogin(true);
         setError('Registration successful. Please log in.');
       }
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message || 'An error occurred. Please try again.');
     }
   };
