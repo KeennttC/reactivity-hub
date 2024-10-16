@@ -23,8 +23,21 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setSocket(ws);
 
     ws.onmessage = (event) => {
-      const message: Message = JSON.parse(event.data);
-      setMessages((prevMessages) => [...prevMessages, message]);
+      try {
+        const message: Message = JSON.parse(event.data);
+        setMessages((prevMessages) => [...prevMessages, message]);
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+        console.log('Received data:', event.data);
+        // Optionally, you can still add the message as plain text
+        const plainTextMessage: Message = {
+          id: Date.now().toString(),
+          user: 'System',
+          text: event.data,
+          timestamp: new Date(),
+        };
+        setMessages((prevMessages) => [...prevMessages, plainTextMessage]);
+      }
     };
 
     return () => {
