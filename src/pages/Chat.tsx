@@ -1,23 +1,54 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useChat } from '../contexts/ChatContext';
 import { useAuth } from '../contexts/AuthContext';
+import { getDatabase, ref, push, onChildAdded, DataSnapshot } from 'firebase/database';
+
+interface Message {
+  id: string;
+  user: string;
+  text: string;
+  timestamp: number;
+}
 
 const Chat: React.FC = () => {
-  const { messages, sendMessage } = useChat();
-  const { user } = useAuth();
+  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const { user } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  useEffect(() => {
+    const db = getDatabase();
+    const messagesRef = ref(db, 'messages');
 
-  useEffect(scrollToBottom, [messages]);
+    const unsubscribe = onChildAdded(messagesRef, (snapshot: DataSnapshot) => {
+      const data = snapshot.val();
+      const message: Message = {
+        id: snapshot.key || '',
+        user: data.user,
+        text: data.text,
+        timestamp: data.timestamp
+      };
+      setMessages((prevMessages) => [...prevMessages, message]);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (newMessage.trim() && user) {
-      sendMessage(newMessage);
+      const db = getDatabase();
+      const messagesRef = ref(db, 'messages');
+      push(messagesRef, {
+        user: user.username,
+        text: newMessage,
+        timestamp: Date.now()
+      });
       setNewMessage('');
     }
   };
