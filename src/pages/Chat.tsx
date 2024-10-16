@@ -1,13 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useChat } from '../contexts/ChatContext';
+import { useAuth } from '../contexts/AuthContext';
 
 const Chat: React.FC = () => {
   const { messages, sendMessage } = useChat();
+  const { user } = useAuth();
   const [newMessage, setNewMessage] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(scrollToBottom, [messages]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (newMessage.trim()) {
+    if (newMessage.trim() && user) {
       sendMessage(newMessage);
       setNewMessage('');
     }
@@ -23,6 +32,7 @@ const Chat: React.FC = () => {
             <span>{message.text}</span>
           </div>
         ))}
+        <div ref={messagesEndRef} />
       </div>
       <form onSubmit={handleSubmit} className="flex">
         <input

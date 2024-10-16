@@ -1,4 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { initializeApp } from 'firebase/app';
+import { getDatabase, ref, push, onChildAdded, DataSnapshot } from 'firebase/database';
+import { useAuth } from './AuthContext';
 
 interface Message {
   id: string;
@@ -16,44 +19,48 @@ const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [socket, setSocket] = useState<WebSocket | null>(null);
+  const { user } = useAuth();
 
   useEffect(() => {
-    const ws = new WebSocket('wss://echo.websocket.org');
-    setSocket(ws);
-
-    ws.onmessage = (event) => {
-      try {
-        const message: Message = JSON.parse(event.data);
-        setMessages((prevMessages) => [...prevMessages, message]);
-      } catch (error) {
-        console.error('Error parsing WebSocket message:', error);
-        console.log('Received data:', event.data);
-        // Optionally, you can still add the message as plain text
-        const plainTextMessage: Message = {
-          id: Date.now().toString(),
-          user: 'System',
-          text: event.data,
-          timestamp: new Date(),
-        };
-        setMessages((prevMessages) => [...prevMessages, plainTextMessage]);
-      }
+    const firebaseConfig = {
+      apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+      authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+      databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL,
+      projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+      storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+      appId: process.env.REACT_APP_FIREBASE_APP_ID
     };
 
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+    const messagesRef = ref(database, 'messages');
+
+    const unsubscribe = onChildAdded(messagesRef, (snapshot: DataSnapshot) => {
+      const data = snapshot.val();
+      const message: Message = {
+        id: snapshot.key || '',
+        user: data.user,
+        text: data.text,
+        timestamp: new Date(data.timestamp)
+      };
+      setMessages((prevMessages) => [...prevMessages, message]);
+    });
+
     return () => {
-      ws.close();
+      unsubscribe();
     };
   }, []);
 
   const sendMessage = (text: string) => {
-    if (socket) {
-      const message: Message = {
-        id: Date.now().toString(),
-        user: 'User', // Replace with actual user
-        text,
-        timestamp: new Date(),
-      };
-      socket.send(JSON.stringify(message));
+    if (user) {
+      const database = getDatabase();
+      const messagesRef = ref(database, 'messages');
+      push(messagesRef, {
+        user: user.username,
+        text: text,
+        timestamp: Date.now()
+      });
     }
   };
 
