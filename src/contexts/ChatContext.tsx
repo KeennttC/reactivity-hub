@@ -7,7 +7,7 @@ interface Message {
   id: string;
   user: string;
   text: string;
-  timestamp: Date;
+  timestamp: number;
 }
 
 interface ChatContextType {
@@ -29,7 +29,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
       storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
       messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-      appId: import.meta.env.VITE_FIREBASE_APP_ID
+      appId: import.meta.env.VITE_FIREBASE_APP_ID,
+      measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
     };
 
     const app = initializeApp(firebaseConfig);
@@ -42,7 +43,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: snapshot.key || '',
         user: data.user,
         text: data.text,
-        timestamp: new Date(data.timestamp)
+        timestamp: data.timestamp
       };
       setMessages((prevMessages) => [...prevMessages, message]);
     });
