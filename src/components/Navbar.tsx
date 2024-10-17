@@ -34,7 +34,7 @@ const Navbar: React.FC = () => {
               onClick={toggleMenu}
               variant="ghost"
               size="icon"
-              className="rounded-full"
+              className="rounded-full md:hidden"
               aria-label="Toggle menu"
             >
               {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
