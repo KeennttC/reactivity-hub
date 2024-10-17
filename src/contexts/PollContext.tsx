@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useAuth } from './AuthContext';
-import { getDatabase, ref, push, onValue, remove, set } from 'firebase/database';
+import { getDatabase, ref, push, onValue, remove } from 'firebase/database';
+import { getApp } from 'firebase/app';
 
 interface PollOption {
   id: string;
@@ -30,16 +31,8 @@ export const PollProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { user } = useAuth();
 
   useEffect(() => {
-    const loadPolls = () => {
-      const storedPolls = localStorage.getItem('polls');
-      if (storedPolls) {
-        setPolls(JSON.parse(storedPolls));
-      }
-    };
-
-    loadPolls();
-
-    const db = getDatabase();
+    const app = getApp(); // Get the initialized Firebase app
+    const db = getDatabase(app);
     const pollsRef = ref(db, 'polls');
 
     const unsubscribe = onValue(pollsRef, (snapshot) => {
@@ -50,7 +43,6 @@ export const PollProvider: React.FC<{ children: React.ReactNode }> = ({ children
           ...value,
         }));
         setPolls(loadedPolls);
-        localStorage.setItem('polls', JSON.stringify(loadedPolls));
       }
     });
 
@@ -69,7 +61,6 @@ export const PollProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const updatedPolls = [...polls, newPoll];
     setPolls(updatedPolls);
-    localStorage.setItem('polls', JSON.stringify(updatedPolls));
 
     const db = getDatabase();
     const pollsRef = ref(db, 'polls');
@@ -92,7 +83,6 @@ export const PollProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     setPolls(updatedPolls);
-    localStorage.setItem('polls', JSON.stringify(updatedPolls));
 
     const db = getDatabase();
     const pollRef = ref(db, `polls/${pollId}`);
@@ -116,7 +106,6 @@ export const PollProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     setPolls(updatedPolls);
-    localStorage.setItem('polls', JSON.stringify(updatedPolls));
 
     const db = getDatabase();
     const pollRef = ref(db, `polls/${pollId}`);
@@ -129,7 +118,6 @@ export const PollProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const removePoll = (pollId: string) => {
     const updatedPolls = polls.filter(poll => poll.id !== pollId);
     setPolls(updatedPolls);
-    localStorage.setItem('polls', JSON.stringify(updatedPolls));
 
     const db = getDatabase();
     const pollRef = ref(db, `polls/${pollId}`);
