@@ -27,7 +27,7 @@ const Navbar: React.FC = () => {
           <div className="flex items-center">
             <Logo />
           </div>
-          <div className="flex flex-col items-end space-y-2">
+          <div className="flex items-center space-x-2">
             <Button
               onClick={toggleTheme}
               variant="ghost"
