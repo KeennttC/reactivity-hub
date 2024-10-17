@@ -32,7 +32,6 @@ const Chat: React.FC = () => {
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     if (messages.length > 0 && messages[messages.length - 1].user !== user?.username) {
       audioRef.current?.play();
     }
@@ -71,6 +70,7 @@ const Chat: React.FC = () => {
         setReplyingTo(null);
       }
       setNewMessage('');
+      audioRef.current?.play();
     }
   };
 
