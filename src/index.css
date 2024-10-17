@@ -18,13 +18,13 @@ body {
 }
 
 body {
-  background-color: #ffffff;
+  background-color: #f0f4f8;
   color: #1a202c;
 }
 
 body.dark {
-  background-color: #121212;
-  color: #e0e0e0;
+  background-color: #1a202c;
+  color: #f0f4f8;
 }
 
 .font-tech-noir {
