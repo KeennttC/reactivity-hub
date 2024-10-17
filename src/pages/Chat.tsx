@@ -93,22 +93,23 @@ const Chat: React.FC = () => {
   const renderMessageStatus = (status: 'sent' | 'delivered' | 'seen') => {
     switch (status) {
       case 'sent':
-        return <Check className="h-4 w-4 text-gray-400" />;
+        return <Check className="h-3 w-3 text-gray-400" />;
       case 'delivered':
-        return <CheckCheck className="h-4 w-4 text-gray-400" />;
+        return <CheckCheck className="h-3 w-3 text-gray-400" />;
       case 'seen':
-        return <CheckCheck className="h-4 w-4 text-blue-500" />;
+        return <CheckCheck className="h-3 w-3 text-blue-500" />;
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 p-2 sm:p-4 md:p-6 rounded-lg shadow-lg">
+    <div className="max-w-3xl mx-auto bg-white dark:bg-gray-800 p-2 sm:p-4 md:p-6 rounded-lg shadow-lg">
       <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-4 md:mb-6 text-gray-800 dark:text-gray-200">Chat Room</h2>
-      <ScrollArea className="h-[300px] sm:h-[350px] md:h-[400px] w-full rounded-md border border-gray-300 dark:border-gray-600 p-2 sm:p-4 mb-2 sm:mb-4">
+      <ScrollArea className="h-[350px] sm:h-[400px] md:h-[450px] w-full rounded-md border border-gray-300 dark:border-gray-600 p-2 sm:p-4 mb-2 sm:mb-4">
         {messages.map((message: Message) => (
-          <div key={message.id} className={`mb-2 sm:mb-4 ${message.user === user?.username ? 'text-right' : 'text-left'}`}>
-            <div className={`inline-block p-2 rounded-lg ${message.user === user?.username ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'}`}>
-              <p className="font-bold text-xs sm:text-sm">{message.user} 
+          <div key={message.id} className={`mb-3 sm:mb-4 ${message.user === user?.username ? 'text-right' : 'text-left'}`}>
+            <div className={`inline-block max-w-[80%] sm:max-w-[70%] p-2 sm:p-3 rounded-lg ${message.user === user?.username ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'}`}>
+              <p className="font-bold text-xs sm:text-sm mb-1">
+                {message.user}
                 <span className={`ml-1 sm:ml-2 inline-block w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${userStatus[message.user] ? 'bg-green-500' : 'bg-gray-500'}`}></span>
               </p>
               {message.replyTo && (
@@ -116,9 +117,9 @@ const Chat: React.FC = () => {
                   Replying to: {messages.find(m => m.id === message.replyTo)?.text.substring(0, 20)}...
                 </div>
               )}
-              <p className="text-xs sm:text-sm">{message.text}</p>
+              <p className="text-sm sm:text-base">{message.text}</p>
               <div className="flex justify-between items-center mt-1">
-                <p className="text-xxs sm:text-xs">{new Date(message.timestamp).toLocaleTimeString()}</p>
+                <p className="text-[10px] sm:text-xs opacity-70">{new Date(message.timestamp).toLocaleTimeString()}</p>
                 {message.user === user?.username && renderMessageStatus(message.status)}
               </div>
               <div className="mt-1 sm:mt-2 flex justify-end space-x-1 sm:space-x-2">
@@ -162,7 +163,7 @@ const Chat: React.FC = () => {
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            className="flex-grow text-xs sm:text-sm bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border-gray-300 dark:border-gray-600"
+            className="flex-grow text-sm sm:text-base bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border-gray-300 dark:border-gray-600"
             placeholder="Type a message..."
           />
           <Button type="button" onClick={() => setShowEmojiPicker(!showEmojiPicker)} size="sm" className="p-2">
