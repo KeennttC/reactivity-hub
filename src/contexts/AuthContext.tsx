@@ -8,6 +8,7 @@ interface User {
   username: string;
   email: string;
   votedPolls: string[];
+  uid: string; // Add this line
 }
 
 interface AuthContextType {
@@ -17,8 +18,6 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -64,7 +63,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: userCredential.user.uid,
         username: username,
         email: email,
-        votedPolls: []
+        votedPolls: [],
+        uid: userCredential.user.uid // Add this line
       };
       await setDoc(doc(db, 'users', newUser.id), newUser);
       setUsers([...users, newUser]);
