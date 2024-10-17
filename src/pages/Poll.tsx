@@ -4,11 +4,12 @@ import { useAuth } from '../contexts/AuthContext';
 import { Button } from "../components/ui/button"
 import { Input } from "../components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
-import { toast } from "../components/ui/use-toast"
+import { useToast } from "../hooks/use-toast"
 
 const Poll: React.FC = () => {
   const { polls, addPoll, editPoll, vote, removePoll } = usePoll();
   const { user } = useAuth();
+  const { toast } = useToast();
   const [newPollQuestion, setNewPollQuestion] = useState('');
   const [newPollOptions, setNewPollOptions] = useState(['', '']);
   const [editingPollId, setEditingPollId] = useState<string | null>(null);
@@ -139,22 +140,20 @@ const Poll: React.FC = () => {
                   </div>
                 ))}
               </div>
-              {user && poll.createdBy === user.uid && (
-                <div className="mt-4 space-x-2">
-                  <Button
-                    onClick={() => handleEditPoll(poll.id)}
-                    variant="outline"
-                  >
-                    Edit Poll
-                  </Button>
-                  <Button
-                    onClick={() => handleRemovePoll(poll.id)}
-                    variant="destructive"
-                  >
-                    Remove Poll
-                  </Button>
-                </div>
-              )}
+              <div className="mt-4 space-x-2">
+                <Button
+                  onClick={() => handleEditPoll(poll.id)}
+                  variant="outline"
+                >
+                  Edit Poll
+                </Button>
+                <Button
+                  onClick={() => handleRemovePoll(poll.id)}
+                  variant="destructive"
+                >
+                  Remove Poll
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ))}

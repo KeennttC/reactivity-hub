@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 
 interface User {
@@ -8,7 +8,7 @@ interface User {
   username: string;
   email: string;
   votedPolls: string[];
-  uid: string; // Add this line
+  uid: string;
 }
 
 interface AuthContextType {
@@ -18,6 +18,14 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
+
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  users: [],
+  register: async () => {},
+  login: async () => {},
+  logout: async () => {},
+});
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -64,7 +72,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         username: username,
         email: email,
         votedPolls: [],
-        uid: userCredential.user.uid // Add this line
+        uid: userCredential.user.uid
       };
       await setDoc(doc(db, 'users', newUser.id), newUser);
       setUsers([...users, newUser]);

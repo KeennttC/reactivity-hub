@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useAuth } from './AuthContext';
-import { getDatabase, ref, push, onValue, remove } from 'firebase/database';
+import { getDatabase, ref, push, onValue, remove, set } from 'firebase/database';
 
 interface PollOption {
   id: string;
@@ -59,12 +59,6 @@ export const PollProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const addPoll = (question: string, options: string[]) => {
     if (!user) return;
-
-    const userPolls = polls.filter(poll => poll.createdBy === user.uid);
-    if (userPolls.length >= 4) {
-      alert("You've reached the limit of 4 created polls. Please remove an existing poll to create a new one.");
-      return;
-    }
 
     const newPoll: Poll = {
       id: Date.now().toString(),
