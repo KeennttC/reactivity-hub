@@ -8,7 +8,19 @@
     },
     "polls": {
       ".read": true,
-      ".write": true
+      ".write": "auth != null"
+    },
+    "userStatus": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "$uid === auth.uid"
+      }
+    },
+    "users": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "$uid === auth.uid"
+      }
     }
   }
 }
