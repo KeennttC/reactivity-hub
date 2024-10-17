@@ -153,8 +153,6 @@ const Chat: React.FC = () => {
                   <PopoverContent className="w-full p-0">
                     <EmojiPicker
                       onEmojiClick={(emojiObject) => handleReaction(message.id, emojiObject.emoji)}
-                      disableAutoFocus={true}
-                      native
                     />
                   </PopoverContent>
                 </Popover>
