@@ -25,17 +25,6 @@ export const PollProvider: React.FC<{ children: React.ReactNode }> = ({ children
           title: "Success",
           description: "Poll created successfully",
         });
-        // Update the polls state after adding a new poll
-        setPolls(prevPolls => {
-          const newPoll: Poll = {
-            id: Date.now().toString(), // Temporary ID, will be replaced by Firebase
-            question,
-            options: options.map((text, index) => ({ id: index.toString(), text, votes: 0 })),
-            createdBy: 'anonymous',
-            votedBy: []
-          };
-          return [...prevPolls, newPoll];
-        });
       })
       .catch((error) => {
         console.error("Error creating poll:", error);
@@ -71,40 +60,6 @@ export const PollProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
   };
 
-  const vote = (pollId: string, optionId: string) => {
-    const userId = localStorage.getItem('userId') || Math.random().toString(36).substr(2, 9);
-    if (!localStorage.getItem('userId')) {
-      localStorage.setItem('userId', userId);
-    }
-
-    pollService.vote(pollId, optionId, userId)
-      .then(() => {
-        toast({
-          title: "Success",
-          description: "Vote recorded successfully",
-        });
-        setPolls(prevPolls => prevPolls.map(poll => 
-          poll.id === pollId 
-            ? {
-                ...poll,
-                options: poll.options.map(option => 
-                  option.id === optionId ? { ...option, votes: option.votes + 1 } : option
-                ),
-                votedBy: [...poll.votedBy, userId]
-              }
-            : poll
-        ));
-      })
-      .catch((error) => {
-        console.error("Error voting:", error);
-        toast({
-          title: "Error",
-          description: error.message || "Failed to record vote. Please try again.",
-          variant: "destructive",
-        });
-      });
-  };
-
   const removePoll = (pollId: string) => {
     pollService.removePoll(pollId)
       .then(() => {
@@ -120,6 +75,30 @@ export const PollProvider: React.FC<{ children: React.ReactNode }> = ({ children
         toast({
           title: "Error",
           description: "Failed to remove poll. Please try again.",
+          variant: "destructive",
+        });
+      });
+  };
+
+  const vote = (pollId: string, optionId: string) => {
+    const userId = localStorage.getItem('userId') || Math.random().toString(36).substr(2, 9);
+    if (!localStorage.getItem('userId')) {
+      localStorage.setItem('userId', userId);
+    }
+
+    pollService.vote(pollId, optionId, userId)
+      .then(() => {
+        toast({
+          title: "Success",
+          description: "Vote recorded successfully",
+        });
+        // Remove local state update to prevent temporary incorrect vote count
+      })
+      .catch((error) => {
+        console.error("Error voting:", error);
+        toast({
+          title: "Error",
+          description: error.message || "Failed to record vote. Please try again.",
           variant: "destructive",
         });
       });

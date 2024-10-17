@@ -1,4 +1,4 @@
-import { getDatabase, ref, push, onValue, remove, update, get } from 'firebase/database';
+import { getDatabase, ref, push, onValue, remove, update, get, set } from 'firebase/database';
 import { Poll, PollOption } from '../types/poll';
 
 export class PollService {
@@ -29,7 +29,8 @@ export class PollService {
     };
 
     const pollsRef = ref(this.db, 'polls');
-    await push(pollsRef, newPoll);
+    const newPollRef = push(pollsRef);
+    await set(newPollRef, newPoll); // Use set instead of push to prevent duplication
   }
 
   async editPoll(pollId: string, question: string, options: string[]): Promise<void> {
