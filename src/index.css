@@ -30,6 +30,13 @@ body {
               inset 0 0 2rem var(--neon-border-color);
 }
 
+.shadow-neon-dark {
+  box-shadow: 0 0 0.5rem #4db8ff,
+              inset 0 0 0.5rem #4db8ff,
+              0 0 2rem #4db8ff,
+              inset 0 0 2rem #4db8ff;
+}
+
 .bg-glassmorphism {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
@@ -40,4 +47,17 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+@keyframes pollResultsAnimation {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+.poll-result-bar {
+  animation: pollResultsAnimation 1s ease-out;
 }

@@ -61,11 +61,11 @@ const Poll: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h2 className="text-4xl font-bold mb-8 text-center text-cyan-300 shadow-neon">Live Polls</h2>
+      <h2 className="text-4xl font-bold mb-8 text-center text-blue-800 shadow-neon-dark">Live Polls</h2>
       
       <Card className="mb-8 bg-glassmorphism">
         <CardHeader>
-          <CardTitle className="text-2xl text-cyan-300">{editingPollId ? 'Edit Poll' : 'Create New Poll'}</CardTitle>
+          <CardTitle className="text-2xl text-blue-800">{editingPollId ? 'Edit Poll' : 'Create New Poll'}</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={editingPollId ? handleUpdatePoll : handleAddPoll} className="space-y-4">
@@ -75,7 +75,7 @@ const Poll: React.FC = () => {
               onChange={(e) => setNewPollQuestion(e.target.value)}
               placeholder="Enter poll question"
               required
-              className="bg-gray-800 text-cyan-100 border-cyan-300 rounded-lg p-2"
+              className="bg-gray-800 text-blue-100 border-blue-300 rounded-lg p-2"
             />
             {newPollOptions.map((option, index) => (
               <Input
@@ -89,18 +89,18 @@ const Poll: React.FC = () => {
                 }}
                 placeholder={`Option ${index + 1}`}
                 required
-                className="bg-gray-800 text-cyan-100 border-cyan-300 rounded-lg p-2"
+                className="bg-gray-800 text-blue-100 border-blue-300 rounded-lg p-2"
               />
             ))}
             <Button
               type="button"
               onClick={() => setNewPollOptions([...newPollOptions, ''])}
               variant="outline"
-              className="bg-cyan-700 hover:bg-cyan-600 text-white"
+              className="bg-blue-700 hover:bg-blue-600 text-white"
             >
               Add Option
             </Button>
-            <Button type="submit" className="bg-cyan-500 hover:bg-cyan-400 text-white">
+            <Button type="submit" className="bg-blue-500 hover:bg-blue-400 text-white">
               {editingPollId ? 'Update Poll' : 'Create Poll'}
             </Button>
           </form>
@@ -111,26 +111,26 @@ const Poll: React.FC = () => {
         {polls.map((poll) => (
           <Card key={poll.id} className="bg-glassmorphism">
             <CardHeader>
-              <CardTitle className="text-2xl text-cyan-300">{poll.question}</CardTitle>
+              <CardTitle className="text-2xl text-blue-800">{poll.question}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {poll.options.map((option) => (
                   <div key={option.id} className="flex items-center justify-between">
-                    <span className="text-cyan-100">{option.text}</span>
+                    <span className="text-blue-100">{option.text}</span>
                     <div className="flex items-center">
                       <div className="w-48 bg-gray-700 rounded-full h-4 mr-2 overflow-hidden">
                         <div
-                          className="bg-cyan-500 h-4 rounded-full transition-all duration-500 ease-out"
+                          className="bg-blue-500 h-4 rounded-full transition-all duration-500 ease-out"
                           style={{ width: `${(option.votes / poll.options.reduce((sum, o) => sum + o.votes, 0)) * 100}%` }}
                         ></div>
                       </div>
-                      <span className="text-sm text-cyan-300 w-12 text-right">{option.votes} votes</span>
+                      <span className="text-sm text-blue-300 w-12 text-right">{option.votes} votes</span>
                       <Button
                         onClick={() => vote(poll.id, option.id)}
                         variant="outline"
                         size="sm"
-                        className="ml-2 bg-cyan-700 hover:bg-cyan-600 text-white"
+                        className="ml-2 bg-blue-700 hover:bg-blue-600 text-white"
                         disabled={poll.votedBy && poll.votedBy.includes(userId)}
                       >
                         Vote
@@ -143,7 +143,7 @@ const Poll: React.FC = () => {
                 <Button
                   onClick={() => handleEditPoll(poll.id)}
                   variant="outline"
-                  className="bg-cyan-700 hover:bg-cyan-600 text-white"
+                  className="bg-blue-700 hover:bg-blue-600 text-white"
                 >
                   Edit Poll
                 </Button>
