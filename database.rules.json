@@ -25,6 +25,12 @@
       "$uid": {
         ".write": "$uid === auth.uid"
       }
+    },
+    "profilePictures": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "$uid === auth.uid"
+      }
     }
   }
 }

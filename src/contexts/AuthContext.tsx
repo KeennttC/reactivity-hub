@@ -3,6 +3,7 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc, collection, getDocs, updateDoc } from 'firebase/firestore';
 import { getDatabase, ref, set, onDisconnect } from 'firebase/database';
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 interface User {
   id: string;
@@ -19,7 +20,7 @@ interface AuthContextType {
   register: (email: string, password: string, username: string) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  updateProfile: (userId: string, updates: Partial<User>) => Promise<void>;
+  updateProfile: (userId: string, updates: { username?: string; profilePicture?: File }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -47,6 +48,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const rtdb = getDatabase(app);
+const storage = getStorage(app);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -127,14 +129,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const updateProfile = async (userId: string, updates: Partial<User>) => {
+  const updateProfile = async (userId: string, updates: { username?: string; profilePicture?: File }) => {
     try {
       const userRef = doc(db, 'users', userId);
-      await updateDoc(userRef, updates);
-      if (user && user.id === userId) {
-        setUser({ ...user, ...updates });
+      const updateData: Partial<User> = {};
+
+      if (updates.username) {
+        updateData.username = updates.username;
       }
-      setUsers(users.map(u => u.id === userId ? { ...u, ...updates } : u));
+
+      if (updates.profilePicture) {
+        const fileRef = storageRef(storage, `profilePictures/${userId}`);
+        await uploadBytes(fileRef, updates.profilePicture);
+        const downloadURL = await getDownloadURL(fileRef);
+        updateData.avatarUrl = downloadURL;
+      }
+
+      await updateDoc(userRef, updateData);
+      if (user && user.id === userId) {
+        setUser({ ...user, ...updateData });
+      }
+      setUsers(users.map(u => u.id === userId ? { ...u, ...updateData } : u));
     } catch (error) {
       console.error('Error updating profile:', error);
       throw new Error('Profile update failed. Please try again.');
