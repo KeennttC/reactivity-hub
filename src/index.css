@@ -16,7 +16,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background: linear-gradient(to bottom, #000000, #1a1a2e);
   min-height: 100vh;
-  color: #a0e6ff; /* Lighter blue for better readability */
+  color: #4db8ff; /* Darker blue for better readability */
 }
 
 .font-tech-noir {
