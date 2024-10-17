@@ -10,6 +10,7 @@ import EmojiPicker from 'emoji-picker-react';
 import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover";
 import MessageList from '../components/MessageList';
 import MessageInput from '../components/MessageInput';
+import { useToast } from "../hooks/use-toast";
 
 const Chat: React.FC = () => {
   const { user } = useAuth();
@@ -18,12 +19,41 @@ const Chat: React.FC = () => {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
+  const [lastMessageId, setLastMessageId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (messages.length > 0 && messages[messages.length - 1].user !== user?.username) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    scrollToBottom();
+  }, []);
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      const latestMessage = messages[messages.length - 1];
+      if (latestMessage.id !== lastMessageId) {
+        scrollToBottom();
+        playNotificationSound();
+        showNotification(latestMessage);
+        setLastMessageId(latestMessage.id);
+      }
     }
-  }, [messages, user]);
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const playNotificationSound = () => {
+    const audio = new Audio('/notification.mp3');
+    audio.play();
+  };
+
+  const showNotification = (message: any) => {
+    toast({
+      title: "New Message",
+      description: `${message.user}: ${message.text.substring(0, 50)}${message.text.length > 50 ? '...' : ''}`,
+      duration: 3000,
+    });
+  };
 
   const handleDelete = (messageId: string) => {
     const scrollArea = scrollAreaRef.current;
@@ -31,7 +61,6 @@ const Chat: React.FC = () => {
     
     deleteMessage(messageId);
     
-    // Restore scroll position after state update
     setTimeout(() => {
       if (scrollArea) {
         scrollArea.scrollTop = scrollPosition;
