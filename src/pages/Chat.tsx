@@ -76,10 +76,10 @@ const Chat: React.FC = () => {
               {message.user === user?.username && (
                 <div className="mt-2">
                   <Button onClick={() => handleEdit(message.id, message.text)} size="sm" variant="ghost" className="mr-2">
-                    <Edit2 size={14} sm:size={16} />
+                    <Edit2 className="h-4 w-4 sm:h-5 sm:w-5" />
                   </Button>
                   <Button onClick={() => handleDelete(message.id)} size="sm" variant="ghost">
-                    <Trash2 size={14} sm:size={16} />
+                    <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
                   </Button>
                 </div>
               )}
