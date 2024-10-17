@@ -2,6 +2,7 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc, collection, getDocs, updateDoc } from 'firebase/firestore';
+import { getDatabase, ref, set, onDisconnect } from 'firebase/database';
 
 interface User {
   id: string;
@@ -45,6 +46,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const rtdb = getDatabase(app);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -57,6 +59,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (userDoc.exists()) {
           const userData = userDoc.data() as User;
           setUser(userData);
+          
+          // Set user status to online
+          const userStatusRef = ref(rtdb, `userStatus/${userData.username}`);
+          set(userStatusRef, true);
+          
+          // Set up disconnect hook
+          onDisconnect(userStatusRef).set(false);
         }
       } else {
         setUser(null);
@@ -105,6 +114,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
+      if (user) {
+        // Set user status to offline before logging out
+        const userStatusRef = ref(rtdb, `userStatus/${user.username}`);
+        await set(userStatusRef, false);
+      }
       await signOut(auth);
       setUser(null);
     } catch (error) {

@@ -1,7 +1,12 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, push, onChildAdded, onChildChanged, onChildRemoved, set, remove, DataSnapshot } from 'firebase/database';
+import { getDatabase, ref, push, onChildAdded, onChildChanged, onChildRemoved, set, remove, DataSnapshot, onValue } from 'firebase/database';
 import { useAuth } from './AuthContext';
+
+interface Reaction {
+  emoji: string;
+  user: string;
+}
 
 interface Message {
   id: string;
@@ -10,6 +15,7 @@ interface Message {
   timestamp: number;
   replyTo?: string;
   status: 'sent' | 'delivered' | 'seen';
+  reactions: Reaction[];
 }
 
 interface ChatContextType {
@@ -20,6 +26,7 @@ interface ChatContextType {
   userStatus: { [key: string]: boolean };
   setUserTyping: (isTyping: boolean) => void;
   typingUsers: string[];
+  addReaction: (messageId: string, emoji: string) => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -56,7 +63,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         text: data.text,
         timestamp: data.timestamp,
         replyTo: data.replyTo,
-        status: data.status || 'sent'
+        status: data.status || 'sent',
+        reactions: data.reactions || []
       };
       setMessages((prevMessages) => [...prevMessages, message]);
     });
@@ -69,7 +77,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         text: data.text,
         timestamp: data.timestamp,
         replyTo: data.replyTo,
-        status: data.status || 'sent'
+        status: data.status || 'sent',
+        reactions: data.reactions || []
       };
       setMessages((prevMessages) => prevMessages.map(msg => msg.id === updatedMessage.id ? updatedMessage : msg));
     });
@@ -88,11 +97,18 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     });
 
+    // Add listener for user status changes
+    const userStatusListener = onValue(userStatusRef, (snapshot: DataSnapshot) => {
+      const statusData = snapshot.val();
+      setUserStatus(statusData || {});
+    });
+
     return () => {
       unsubscribeMessages();
       unsubscribeMessageChanges();
       unsubscribeMessageRemovals();
       typingListener();
+      userStatusListener();
     };
   }, [user, users]);
 
@@ -105,7 +121,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         text: text,
         timestamp: Date.now(),
         replyTo: replyTo,
-        status: 'sent'
+        status: 'sent',
+        reactions: []
       });
     }
   };
@@ -118,7 +135,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user: user.username,
         text: newText,
         timestamp: Date.now(),
-        status: 'sent'
+        status: 'sent',
+        reactions: []
       });
     }
   };
@@ -139,8 +157,40 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const addReaction = (messageId: string, emoji: string) => {
+    if (user) {
+      const database = getDatabase();
+      const messageRef = ref(database, `messages/${messageId}`);
+      const newReaction: Reaction = { emoji, user: user.username };
+      
+      // Get the current message
+      get(messageRef).then((snapshot) => {
+        if (snapshot.exists()) {
+          const messageData = snapshot.val();
+          const reactions = messageData.reactions || [];
+          
+          // Check if the user has already reacted with this emoji
+          const existingReactionIndex = reactions.findIndex(
+            (r: Reaction) => r.user === user.username && r.emoji === emoji
+          );
+          
+          if (existingReactionIndex !== -1) {
+            // Remove the reaction if it already exists
+            reactions.splice(existingReactionIndex, 1);
+          } else {
+            // Add the new reaction
+            reactions.push(newReaction);
+          }
+          
+          // Update the message with the new reactions
+          set(messageRef, { ...messageData, reactions });
+        }
+      });
+    }
+  };
+
   return (
-    <ChatContext.Provider value={{ messages, sendMessage, editMessage, deleteMessage, userStatus, setUserTyping, typingUsers }}>
+    <ChatContext.Provider value={{ messages, sendMessage, editMessage, deleteMessage, userStatus, setUserTyping, typingUsers, addReaction }}>
       {children}
     </ChatContext.Provider>
   );

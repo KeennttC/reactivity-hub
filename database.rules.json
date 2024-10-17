@@ -4,7 +4,13 @@
     ".write": "auth != null",
     "messages": {
       ".read": "auth != null",
-      ".write": "auth != null"
+      ".write": "auth != null",
+      "$messageId": {
+        "reactions": {
+          ".read": "auth != null",
+          ".write": "auth != null"
+        }
+      }
     },
     "polls": {
       ".read": true,

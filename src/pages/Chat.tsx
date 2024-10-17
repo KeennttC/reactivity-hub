@@ -7,6 +7,7 @@ import { ScrollArea } from "../components/ui/scroll-area"
 import { Trash2, Edit2, Smile, Reply, Check, CheckCheck } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import EmojiPicker from 'emoji-picker-react';
+import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover"
 
 interface Message {
   id: string;
@@ -15,6 +16,7 @@ interface Message {
   timestamp: number;
   replyTo?: string;
   status: 'sent' | 'delivered' | 'seen';
+  reactions: { emoji: string; user: string }[];
 }
 
 const Chat: React.FC = () => {
@@ -23,7 +25,7 @@ const Chat: React.FC = () => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const { user } = useAuth();
-  const { messages, sendMessage, editMessage, deleteMessage, userStatus, setUserTyping, typingUsers } = useChat();
+  const { messages, sendMessage, editMessage, deleteMessage, userStatus, setUserTyping, typingUsers, addReaction } = useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const { theme } = useTheme();
@@ -90,6 +92,10 @@ const Chat: React.FC = () => {
     setShowEmojiPicker(false);
   };
 
+  const handleReaction = (messageId: string, emoji: string) => {
+    addReaction(messageId, emoji);
+  };
+
   const renderMessageStatus = (status: 'sent' | 'delivered' | 'seen') => {
     switch (status) {
       case 'sent':
@@ -138,7 +144,28 @@ const Chat: React.FC = () => {
                     <Reply className="h-3 w-3 sm:h-4 sm:w-4" />
                   </Button>
                 )}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button size="sm" variant="ghost" className="p-1">
+                      <Smile className="h-3 w-3 sm:h-4 sm:w-4" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0">
+                    <EmojiPicker
+                      onEmojiClick={(emojiObject) => handleReaction(message.id, emojiObject.emoji)}
+                      disableAutoFocus={true}
+                      native
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
+              {message.reactions.length > 0 && (
+                <div className="mt-1 flex flex-wrap">
+                  {message.reactions.map((reaction, index) => (
+                    <span key={index} className="mr-1 mb-1 text-sm">{reaction.emoji}</span>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         ))}
