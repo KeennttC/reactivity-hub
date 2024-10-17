@@ -8,7 +8,7 @@
     },
     "polls": {
       ".read": true,
-      ".write": "auth != null"
+      ".write": true
     },
     "userStatus": {
       ".read": "auth != null",
