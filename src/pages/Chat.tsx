@@ -8,6 +8,7 @@ import { Trash2, Edit2, Smile, Reply, Check, CheckCheck } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import EmojiPicker from 'emoji-picker-react';
 import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover"
+import { scrollToBottom } from '../utils/scrollUtils';
 
 interface Message {
   id: string;
@@ -28,8 +29,13 @@ const Chat: React.FC = () => {
   const { messages, sendMessage, editMessage, deleteMessage, userStatus, setUserTyping, typingUsers, addReaction } = useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { theme } = useTheme();
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    scrollToBottom(scrollAreaRef.current);
+  }, [messages]);
 
   useEffect(() => {
     if (messages.length > 0 && messages[messages.length - 1].user !== user?.username) {
@@ -110,7 +116,7 @@ const Chat: React.FC = () => {
   return (
     <div className="max-w-3xl mx-auto bg-white dark:bg-gray-800 p-2 sm:p-4 md:p-6 rounded-lg shadow-lg">
       <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-4 md:mb-6 text-gray-800 dark:text-gray-200">Chat Room</h2>
-      <ScrollArea className="h-[350px] sm:h-[400px] md:h-[450px] w-full rounded-md border border-gray-300 dark:border-gray-600 p-2 sm:p-4 mb-2 sm:mb-4">
+      <ScrollArea ref={scrollAreaRef} className="h-[350px] sm:h-[400px] md:h-[450px] w-full rounded-md border border-gray-300 dark:border-gray-600 p-2 sm:p-4 mb-2 sm:mb-4">
         {messages.map((message: Message) => (
           <div key={message.id} className={`mb-3 sm:mb-4 ${message.user === user?.username ? 'text-right' : 'text-left'}`}>
             <div className={`inline-block max-w-[80%] sm:max-w-[70%] p-2 sm:p-3 rounded-lg ${message.user === user?.username ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'}`}>
