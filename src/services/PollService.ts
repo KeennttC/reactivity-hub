@@ -25,7 +25,7 @@ export class PollService {
       question,
       options: options.map((text, index) => ({ id: `${index}`, text, votes: 0 })),
       createdBy: 'anonymous',
-      votedBy: [],
+      votedBy: [], // Initialize votedBy as an empty array
     };
 
     const pollsRef = ref(this.db, 'polls');

@@ -128,7 +128,7 @@ const Poll: React.FC = () => {
                         variant="outline"
                         size="sm"
                         className="ml-2"
-                        disabled={poll.votedBy.includes(userId)}
+                        disabled={poll.votedBy && poll.votedBy.includes(userId)}
                       >
                         Vote
                       </Button>
