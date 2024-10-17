@@ -8,7 +8,6 @@ import { Trash2, Edit2, Smile, Reply, Check, CheckCheck } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import EmojiPicker from 'emoji-picker-react';
 import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover"
-import { Avatar, AvatarImage, AvatarFallback } from "../components/ui/avatar";
 
 interface Message {
   id: string;
@@ -82,7 +81,6 @@ const Chat: React.FC = () => {
 
   const handleDelete = (messageId: string) => {
     deleteMessage(messageId);
-    // Removed the automatic scrolling after deletion
   };
 
   const handleReply = (messageId: string) => {
@@ -116,16 +114,10 @@ const Chat: React.FC = () => {
         {messages.map((message: Message) => (
           <div key={message.id} className={`mb-3 sm:mb-4 ${message.user === user?.username ? 'text-right' : 'text-left'}`}>
             <div className={`inline-block max-w-[80%] sm:max-w-[70%] p-2 sm:p-3 rounded-lg ${message.user === user?.username ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'}`}>
-              <div className="flex items-center space-x-2 mb-1">
-                <Avatar className="w-6 h-6">
-                  <AvatarImage src={users.find(u => u.username === message.user)?.avatarUrl} alt={message.user} />
-                  <AvatarFallback>{message.user.charAt(0).toUpperCase()}</AvatarFallback>
-                </Avatar>
-                <p className="font-bold text-xs sm:text-sm">
-                  {message.user}
-                  <span className={`ml-1 sm:ml-2 inline-block w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${userStatus[message.user] ? 'bg-green-500' : 'bg-gray-500'}`}></span>
-                </p>
-              </div>
+              <p className="font-bold text-xs sm:text-sm mb-1">
+                {message.user}
+                <span className={`ml-1 sm:ml-2 inline-block w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${userStatus[message.user] ? 'bg-green-500' : 'bg-gray-500'}`}></span>
+              </p>
               {message.replyTo && (
                 <div className="text-xs italic mb-1 opacity-75">
                   Replying to: {messages.find(m => m.id === message.replyTo)?.text.substring(0, 20)}...
