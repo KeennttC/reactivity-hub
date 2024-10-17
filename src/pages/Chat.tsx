@@ -10,14 +10,12 @@ import EmojiPicker from 'emoji-picker-react';
 import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover";
 import MessageList from '../components/MessageList';
 import MessageInput from '../components/MessageInput';
-import EditProfileModal from '../components/EditProfileModal';
 
 const Chat: React.FC = () => {
   const { user } = useAuth();
   const { messages, deleteMessage } = useChat();
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
-  const [showEditProfile, setShowEditProfile] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
@@ -45,7 +43,6 @@ const Chat: React.FC = () => {
     <div className="max-w-3xl mx-auto bg-white dark:bg-gray-800 p-2 sm:p-4 md:p-6 rounded-lg shadow-lg">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-200">Chat Room</h2>
-        <Button onClick={() => setShowEditProfile(true)}>Edit Profile</Button>
       </div>
       <ScrollArea ref={scrollAreaRef} className="h-[350px] sm:h-[400px] md:h-[450px] w-full rounded-md border border-gray-300 dark:border-gray-600 p-2 sm:p-4 mb-2 sm:mb-4">
         <MessageList 
@@ -62,7 +59,6 @@ const Chat: React.FC = () => {
         showEmojiPicker={showEmojiPicker}
         setShowEmojiPicker={setShowEmojiPicker}
       />
-      {showEditProfile && <EditProfileModal onClose={() => setShowEditProfile(false)} />}
     </div>
   );
 };
