@@ -63,12 +63,12 @@ const Poll: React.FC = () => {
   };
 
   return (
-    <div className={`max-w-4xl mx-auto p-6 ${theme === 'dark' ? 'dark' : ''}`}>
-      <h2 className="text-4xl font-bold mb-8 text-center text-gray-800 dark:text-gray-200">Live Polls</h2>
+    <div className={`max-w-4xl mx-auto p-4 sm:p-6 ${theme === 'dark' ? 'dark' : ''}`}>
+      <h2 className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8 text-center text-gray-800 dark:text-gray-200">Live Polls</h2>
       
-      <Card className="mb-8 bg-white dark:bg-gray-800">
+      <Card className="mb-6 sm:mb-8 bg-white dark:bg-gray-800">
         <CardHeader>
-          <CardTitle className="text-2xl text-gray-800 dark:text-gray-200">{editingPollId ? 'Edit Poll' : 'Create New Poll'}</CardTitle>
+          <CardTitle className="text-xl sm:text-2xl text-gray-800 dark:text-gray-200">{editingPollId ? 'Edit Poll' : 'Create New Poll'}</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={editingPollId ? handleUpdatePoll : handleAddPoll} className="space-y-4">
@@ -103,7 +103,7 @@ const Poll: React.FC = () => {
             >
               Add Option
             </Button>
-            <Button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white">
+            <Button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white w-full sm:w-auto">
               {editingPollId ? 'Update Poll' : 'Create Poll'}
             </Button>
           </form>
@@ -114,15 +114,15 @@ const Poll: React.FC = () => {
         {polls.map((poll) => (
           <Card key={poll.id} className="bg-white dark:bg-gray-800">
             <CardHeader>
-              <CardTitle className="text-2xl text-gray-800 dark:text-gray-200">{poll.question}</CardTitle>
+              <CardTitle className="text-xl sm:text-2xl text-gray-800 dark:text-gray-200">{poll.question}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {poll.options.map((option) => (
-                  <div key={option.id} className="flex items-center justify-between">
-                    <span className="text-gray-800 dark:text-gray-200">{option.text}</span>
+                  <div key={option.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                    <span className="text-gray-800 dark:text-gray-200 mb-2 sm:mb-0">{option.text}</span>
                     <div className="flex items-center">
-                      <div className="w-48 bg-gray-200 dark:bg-gray-700 rounded-full h-4 mr-2 overflow-hidden">
+                      <div className="w-full sm:w-48 bg-gray-200 dark:bg-gray-700 rounded-full h-4 mr-2 overflow-hidden">
                         <div
                           className="bg-blue-500 h-4 rounded-full transition-all duration-500 ease-out poll-result-bar"
                           style={{ width: `${(option.votes / poll.options.reduce((sum, o) => sum + o.votes, 0)) * 100}%` }}
@@ -142,11 +142,11 @@ const Poll: React.FC = () => {
                   </div>
                 ))}
               </div>
-              <div className="mt-4 space-x-2">
+              <div className="mt-4 space-x-2 flex flex-col sm:flex-row">
                 <Button
                   onClick={() => handleEditPoll(poll.id)}
                   variant="outline"
-                  className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+                  className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 mb-2 sm:mb-0"
                 >
                   Edit Poll
                 </Button>
