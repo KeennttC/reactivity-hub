@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "./ui/dialog";
+import { useToast } from "../hooks/use-toast";
 
 interface EditProfileModalProps {
   onClose: () => void;
@@ -11,12 +12,25 @@ interface EditProfileModalProps {
 const EditProfileModal: React.FC<EditProfileModalProps> = ({ onClose }) => {
   const { user, updateProfile } = useAuth();
   const [nickname, setNickname] = useState(user?.username || '');
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (user) {
-      await updateProfile(user.id, { username: nickname });
-      onClose();
+      try {
+        await updateProfile(user.id, { username: nickname });
+        toast({
+          title: "Profile Updated",
+          description: "Your profile has been successfully updated.",
+        });
+        onClose();
+      } catch (error) {
+        toast({
+          title: "Update Failed",
+          description: "There was an error updating your profile. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   };
 

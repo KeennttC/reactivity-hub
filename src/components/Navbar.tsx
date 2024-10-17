@@ -1,16 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Logo from './Logo';
 import { Button } from "./ui/button";
 import { useTheme } from '../contexts/ThemeContext';
 import { Sun, Moon, Menu } from 'lucide-react';
+import EditProfileModal from './EditProfileModal';
 
 const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const [showEditProfile, setShowEditProfile] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -41,6 +43,7 @@ const Navbar: React.FC = () => {
                 <Link to="/chat" className="text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300 font-tech-noir text-sm sm:text-base">Chat</Link>
                 <Link to="/poll" className="text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300 font-tech-noir text-sm sm:text-base">Poll</Link>
                 <Link to="/members" className="text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300 font-tech-noir text-sm sm:text-base">Members</Link>
+                <Button onClick={() => setShowEditProfile(true)} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 sm:py-2 sm:px-4 rounded text-xs sm:text-sm transition-colors duration-300">Edit Profile</Button>
                 <Button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 sm:py-2 sm:px-4 rounded text-xs sm:text-sm transition-colors duration-300">Logout</Button>
               </>
             ) : (
@@ -75,6 +78,7 @@ const Navbar: React.FC = () => {
                 <Link to="/chat" className="block py-1 text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300 font-tech-noir text-sm">Chat</Link>
                 <Link to="/poll" className="block py-1 text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300 font-tech-noir text-sm">Poll</Link>
                 <Link to="/members" className="block py-1 text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300 font-tech-noir text-sm">Members</Link>
+                <Button onClick={() => setShowEditProfile(true)} className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded text-xs transition-colors duration-300">Edit Profile</Button>
                 <Button onClick={handleLogout} className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded text-xs transition-colors duration-300">Logout</Button>
               </>
             ) : (
@@ -83,6 +87,7 @@ const Navbar: React.FC = () => {
           </div>
         )}
       </div>
+      {showEditProfile && <EditProfileModal onClose={() => setShowEditProfile(false)} />}
     </nav>
   );
 };
