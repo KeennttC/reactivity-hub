@@ -17,6 +17,7 @@ const Chat: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const { theme } = useTheme();
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -26,12 +27,25 @@ const Chat: React.FC = () => {
   }, [messages, user]);
 
   useEffect(() => {
-    let typingTimer: NodeJS.Timeout;
-    if (newMessage) {
+    const handleTyping = () => {
       setUserTyping(true);
-      typingTimer = setTimeout(() => setUserTyping(false), 1000);
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+      typingTimeoutRef.current = setTimeout(() => {
+        setUserTyping(false);
+      }, 2000);
+    };
+
+    if (newMessage) {
+      handleTyping();
     }
-    return () => clearTimeout(typingTimer);
+
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
   }, [newMessage, setUserTyping]);
 
   const handleSubmit = (e: React.FormEvent) => {

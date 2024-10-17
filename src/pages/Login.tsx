@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { Input } from "../components/ui/input";
+import { Button } from "../components/ui/button";
 
 const Login: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -43,43 +45,44 @@ const Login: React.FC = () => {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Email</label>
-          <input
+          <Input
             type="email"
             id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
             required
           />
         </div>
         {!isLogin && (
           <div>
             <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Username</label>
-            <input
+            <Input
               type="text"
               id="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
               required
             />
           </div>
         )}
         <div>
           <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Password</label>
-          <input
+          <Input
             type="password"
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
             required
             minLength={8}
+            style={{ fontSize: '18px' }}
           />
         </div>
-        <button type="submit" className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition duration-300">
+        <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition duration-300">
           {isLogin ? 'Login' : 'Register'}
-        </button>
+        </Button>
       </form>
       <p className="mt-4 text-center text-gray-600 dark:text-gray-300">
         {isLogin ? "Don't have an account? " : "Already have an account? "}
