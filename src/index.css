@@ -14,17 +14,6 @@ body {
   font-family: 'Orbitron', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background-color 0.3s, color 0.3s;
-}
-
-body {
-  background-color: #f0f4f8;
-  color: #1a202c;
-}
-
-body.dark {
-  background-color: #1a202c;
-  color: #f0f4f8;
 }
 
 .font-tech-noir {
@@ -38,7 +27,7 @@ body.dark {
               inset 0 0 2rem var(--neon-border-color);
 }
 
-.shadow-neon-dark {
+.dark .shadow-neon {
   box-shadow: 0 0 0.5rem #4db8ff,
               inset 0 0 0.5rem #4db8ff,
               0 0 2rem #4db8ff,
@@ -52,7 +41,7 @@ body.dark {
   border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
-body.dark .bg-glassmorphism {
+.dark .bg-glassmorphism {
   background: rgba(0, 0, 0, 0.3);
 }
 
@@ -74,19 +63,9 @@ code {
   animation: pollResultsAnimation 1s ease-out;
 }
 
-/* Add these new styles for the sidebar */
-.sidebar-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 30;
-}
-
-@media (min-width: 768px) {
-  .sidebar-overlay {
-    display: none;
-  }
+/* Ensure smooth transitions for theme changes */
+.transition-colors {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
 }

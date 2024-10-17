@@ -21,7 +21,7 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className={`bg-glassmorphism shadow-lg ${theme === 'dark' ? 'dark' : ''}`}>
+    <nav className="bg-white dark:bg-gray-800 shadow-lg transition-colors duration-300">
       <div className="container mx-auto px-6 py-3">
         <div className="flex justify-between items-center">
           <Logo />
@@ -37,13 +37,13 @@ const Navbar: React.FC = () => {
             </Button>
             {user ? (
               <>
-                <Link to="/chat" className="text-blue-800 dark:text-blue-300 hover:text-blue-600 transition-colors duration-300 font-tech-noir text-lg">Chat</Link>
-                <Link to="/poll" className="text-blue-800 dark:text-blue-300 hover:text-blue-600 transition-colors duration-300 font-tech-noir text-lg">Poll</Link>
-                <Link to="/members" className="text-blue-800 dark:text-blue-300 hover:text-blue-600 transition-colors duration-300 font-tech-noir text-lg">Members</Link>
-                <Button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition-colors duration-300 shadow-neon">Logout</Button>
+                <Link to="/chat" className="text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300 font-tech-noir text-lg">Chat</Link>
+                <Link to="/poll" className="text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300 font-tech-noir text-lg">Poll</Link>
+                <Link to="/members" className="text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300 font-tech-noir text-lg">Members</Link>
+                <Button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition-colors duration-300">Logout</Button>
               </>
             ) : (
-              <Link to="/login" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition-colors duration-300 shadow-neon">Login</Link>
+              <Link to="/login" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition-colors duration-300">Login</Link>
             )}
           </div>
         </div>
