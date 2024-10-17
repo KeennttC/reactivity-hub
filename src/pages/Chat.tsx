@@ -1,39 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { getDatabase, ref, push, onChildAdded, DataSnapshot } from 'firebase/database';
-
-interface Message {
-  id: string;
-  user: string;
-  text: string;
-  timestamp: number;
-}
+import { useChat } from '../contexts/ChatContext';
+import { Button } from "../components/ui/button"
+import { Input } from "../components/ui/input"
+import { ScrollArea } from "../components/ui/scroll-area"
 
 const Chat: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const { user } = useAuth();
+  const { messages, sendMessage } = useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const db = getDatabase();
-    const messagesRef = ref(db, 'messages');
-
-    const unsubscribe = onChildAdded(messagesRef, (snapshot: DataSnapshot) => {
-      const data = snapshot.val();
-      const message: Message = {
-        id: snapshot.key || '',
-        user: data.user,
-        text: data.text,
-        timestamp: data.timestamp
-      };
-      setMessages((prevMessages) => [...prevMessages, message]);
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -42,13 +18,7 @@ const Chat: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (newMessage.trim() && user) {
-      const db = getDatabase();
-      const messagesRef = ref(db, 'messages');
-      push(messagesRef, {
-        user: user.username,
-        text: newMessage,
-        timestamp: Date.now()
-      });
+      sendMessage(newMessage);
       setNewMessage('');
     }
   };
@@ -56,7 +26,7 @@ const Chat: React.FC = () => {
   return (
     <div className="max-w-2xl mx-auto">
       <h2 className="text-2xl font-bold mb-4">Chat Room</h2>
-      <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-4 mb-4 h-96 overflow-y-auto">
+      <ScrollArea className="h-[400px] w-full rounded-md border p-4">
         {messages.map((message) => (
           <div key={message.id} className="mb-2">
             <span className="font-bold">{message.user}: </span>
@@ -64,18 +34,18 @@ const Chat: React.FC = () => {
           </div>
         ))}
         <div ref={messagesEndRef} />
-      </div>
-      <form onSubmit={handleSubmit} className="flex">
-        <input
+      </ScrollArea>
+      <form onSubmit={handleSubmit} className="mt-4 flex">
+        <Input
           type="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          className="flex-grow px-3 py-2 border rounded-l"
+          className="flex-grow"
           placeholder="Type a message..."
         />
-        <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-r">
+        <Button type="submit" className="ml-2">
           Send
-        </button>
+        </Button>
       </form>
     </div>
   );
