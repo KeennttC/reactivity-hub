@@ -17,18 +17,18 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 shadow-lg backdrop-blur-md bg-opacity-30">
+    <nav className="bg-glassmorphism shadow-lg">
       <div className="container mx-auto px-6 py-3">
         <div className="flex justify-between items-center">
           <div className="flex items-center">
             <Logo />
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-6">
             {user ? (
               <>
-                <span className="text-white font-vaporwave text-lg">Welcome, {user.username}</span>
-                <Link to="/chat" className="text-white hover:text-cyan-300 transition-colors duration-300 font-vaporwave text-lg">Chat</Link>
-                <Link to="/poll" className="text-white hover:text-cyan-300 transition-colors duration-300 font-vaporwave text-lg">Poll</Link>
+                <span className="text-cyan-300 font-tech-noir text-lg">Welcome, {user.username}</span>
+                <Link to="/chat" className="text-white hover:text-cyan-300 transition-colors duration-300 font-tech-noir text-lg">Chat</Link>
+                <Link to="/poll" className="text-white hover:text-cyan-300 transition-colors duration-300 font-tech-noir text-lg">Poll</Link>
                 <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition-colors duration-300 shadow-neon">Logout</button>
               </>
             ) : (

@@ -2,37 +2,36 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
-@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
 
 :root {
-  --neon-text-color: #f40;
-  --neon-border-color: #08f;
+  --neon-text-color: #0ff;
+  --neon-border-color: #0ff;
 }
 
 body {
   margin: 0;
-  font-family: 'VT323', monospace;
+  font-family: 'Orbitron', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(45deg, #ff00ff, #00ffff);
+  background: linear-gradient(to bottom, #000000, #1a1a2e);
   min-height: 100vh;
+  color: #ffffff;
 }
 
-.font-vaporwave {
-  font-family: 'VT323', monospace;
+.font-tech-noir {
+  font-family: 'Orbitron', sans-serif;
 }
 
 .shadow-neon {
   box-shadow: 0 0 0.5rem #fff,
               inset 0 0 0.5rem #fff,
               0 0 2rem var(--neon-border-color),
-              inset 0 0 2rem var(--neon-border-color),
-              0 0 4rem var(--neon-border-color),
-              inset 0 0 4rem var(--neon-border-color);
+              inset 0 0 2rem var(--neon-border-color);
 }
 
 .bg-glassmorphism {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.18);

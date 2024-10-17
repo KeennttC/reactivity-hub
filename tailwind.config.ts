@@ -54,7 +54,7 @@ export default {
         },
       },
       fontFamily: {
-        vaporwave: ['VT323', 'monospace'],
+        'tech-noir': ['Orbitron', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius)",
