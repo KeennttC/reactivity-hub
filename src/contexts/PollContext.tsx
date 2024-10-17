@@ -46,6 +46,8 @@ export const PollProvider: React.FC<{ children: React.ReactNode }> = ({ children
           ...value,
         }));
         setPolls(loadedPolls);
+      } else {
+        setPolls([]);
       }
     });
 
@@ -106,12 +108,21 @@ export const PollProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }),
         };
 
-        update(pollRef, updatedPoll);
-
-        toast({
-          title: "Success",
-          description: "Poll updated successfully",
-        });
+        update(pollRef, updatedPoll)
+          .then(() => {
+            toast({
+              title: "Success",
+              description: "Poll updated successfully",
+            });
+          })
+          .catch((error) => {
+            console.error("Error updating poll:", error);
+            toast({
+              title: "Error",
+              description: "Failed to update poll. Please try again.",
+              variant: "destructive",
+            });
+          });
       }
     });
   };
@@ -129,47 +140,68 @@ export const PollProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const db = getDatabase();
     const pollRef = ref(db, `polls/${pollId}`);
 
-    get(pollRef).then((snapshot) => {
-      if (snapshot.exists()) {
-        const poll = snapshot.val();
-        if (poll.votedBy && poll.votedBy.includes(user.uid)) {
-          toast({
-            title: "Error",
-            description: "You have already voted on this poll.",
-            variant: "destructive",
-          });
-          return;
+    get(pollRef)
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          const poll = snapshot.val();
+          if (poll.votedBy && poll.votedBy.includes(user.uid)) {
+            toast({
+              title: "Error",
+              description: "You have already voted on this poll.",
+              variant: "destructive",
+            });
+            return;
+          }
+
+          const updatedOptions = poll.options.map((option: PollOption) =>
+            option.id === optionId ? { ...option, votes: option.votes + 1 } : option
+          );
+
+          const updatedPoll = {
+            ...poll,
+            options: updatedOptions,
+            votedBy: [...(poll.votedBy || []), user.uid],
+          };
+
+          return update(pollRef, updatedPoll);
+        } else {
+          throw new Error("Poll not found");
         }
-
-        const updatedOptions = poll.options.map((option: PollOption) =>
-          option.id === optionId ? { ...option, votes: option.votes + 1 } : option
-        );
-
-        const updatedPoll = {
-          ...poll,
-          options: updatedOptions,
-          votedBy: [...(poll.votedBy || []), user.uid],
-        };
-
-        update(pollRef, updatedPoll);
-
+      })
+      .then(() => {
         toast({
           title: "Success",
           description: "Vote recorded successfully",
         });
-      }
-    });
+      })
+      .catch((error) => {
+        console.error("Error voting on poll:", error);
+        toast({
+          title: "Error",
+          description: "Failed to record vote. Please try again.",
+          variant: "destructive",
+        });
+      });
   };
 
   const removePoll = (pollId: string) => {
     const db = getDatabase();
     const pollRef = ref(db, `polls/${pollId}`);
-    remove(pollRef);
-
-    toast({
-      title: "Success",
-      description: "Poll removed successfully",
-    });
+    remove(pollRef)
+      .then(() => {
+        toast({
+          title: "Success",
+          description: "Poll removed successfully",
+        });
+      })
+      .catch((error) => {
+        console.error("Error removing poll:", error);
+        toast({
+          title: "Error",
+          description: "Failed to remove poll. Please try again.",
+          variant: "destructive",
+        });
+      });
   };
 
   return (
