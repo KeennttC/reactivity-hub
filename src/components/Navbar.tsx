@@ -29,8 +29,8 @@ const Navbar: React.FC = () => {
           <div className="flex items-center space-x-6">
             {user ? (
               <>
-                <Link to="/chat" className="text-blue-800 hover:text-blue-600 transition-colors duration-300 font-tech-noir text-lg">Chat</Link>
-                <Link to="/poll" className="text-blue-800 hover:text-blue-600 transition-colors duration-300 font-tech-noir text-lg">Poll</Link>
+                <Link to="/chat" className="text-blue-800 dark:text-blue-300 hover:text-blue-600 transition-colors duration-300 font-tech-noir text-lg">Chat</Link>
+                <Link to="/poll" className="text-blue-800 dark:text-blue-300 hover:text-blue-600 transition-colors duration-300 font-tech-noir text-lg">Poll</Link>
                 <Button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition-colors duration-300 shadow-neon">Logout</Button>
               </>
             ) : (
@@ -43,7 +43,7 @@ const Navbar: React.FC = () => {
         </div>
         {user && (
           <div className="mt-4 text-center">
-            <span className="text-blue-800 font-tech-noir text-lg">Welcome, {user.username}</span>
+            <span className="text-blue-800 dark:text-blue-300 font-tech-noir text-lg">Welcome, {user.username}</span>
           </div>
         )}
       </div>
