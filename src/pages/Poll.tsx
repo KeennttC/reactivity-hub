@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { usePoll } from '../contexts/PollContext';
-import { useAuth } from '../contexts/AuthContext';
 import { Button } from "../components/ui/button"
 import { Input } from "../components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
@@ -8,7 +7,6 @@ import { useToast } from "../hooks/use-toast"
 
 const Poll: React.FC = () => {
   const { polls, addPoll, editPoll, vote, removePoll } = usePoll();
-  const { user } = useAuth();
   const { toast } = useToast();
   const [newPollQuestion, setNewPollQuestion] = useState('');
   const [newPollOptions, setNewPollOptions] = useState(['', '']);
@@ -27,10 +25,6 @@ const Poll: React.FC = () => {
     addPoll(newPollQuestion, newPollOptions.filter(option => option.trim() !== ''));
     setNewPollQuestion('');
     setNewPollOptions(['', '']);
-    toast({
-      title: "Success",
-      description: "Poll created successfully",
-    });
   };
 
   const handleEditPoll = (pollId: string) => {
@@ -49,19 +43,11 @@ const Poll: React.FC = () => {
       setEditingPollId(null);
       setNewPollQuestion('');
       setNewPollOptions(['', '']);
-      toast({
-        title: "Success",
-        description: "Poll updated successfully",
-      });
     }
   };
 
   const handleRemovePoll = (pollId: string) => {
     removePoll(pollId);
-    toast({
-      title: "Success",
-      description: "Poll removed successfully",
-    });
   };
 
   return (

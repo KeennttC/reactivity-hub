@@ -1,7 +1,4 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { useAuth } from './AuthContext';
-import { getDatabase, ref, push, onValue, remove, update, get } from 'firebase/database';
-import { getApp } from 'firebase/app';
 import { useToast } from "../hooks/use-toast"
 import { PollService } from '../services/PollService';
 import { Poll, PollContextType } from '../types/poll';
@@ -10,7 +7,6 @@ const PollContext = createContext<PollContextType | undefined>(undefined);
 
 export const PollProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [polls, setPolls] = useState<Poll[]>([]);
-  const { user } = useAuth();
   const { toast } = useToast();
   const pollService = new PollService();
 
@@ -23,16 +19,7 @@ export const PollProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const addPoll = (question: string, options: string[]) => {
-    if (!user || !user.uid) {
-      toast({
-        title: "Error",
-        description: "You must be logged in to create a poll.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    pollService.addPoll(question, options, user.uid)
+    pollService.addPoll(question, options)
       .then(() => {
         toast({
           title: "Success",
@@ -44,7 +31,7 @@ export const PollProvider: React.FC<{ children: React.ReactNode }> = ({ children
             id: Date.now().toString(), // Temporary ID, will be replaced by Firebase
             question,
             options: options.map((text, index) => ({ id: index.toString(), text, votes: 0 })),
-            createdBy: user.uid,
+            createdBy: 'anonymous',
             votedBy: []
           };
           return [...prevPolls, newPoll];
@@ -85,16 +72,7 @@ export const PollProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const vote = (pollId: string, optionId: string) => {
-    if (!user || !user.uid) {
-      toast({
-        title: "Error",
-        description: "You must be logged in to vote.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    pollService.vote(pollId, optionId, user.uid)
+    pollService.vote(pollId, optionId)
       .then(() => {
         toast({
           title: "Success",
@@ -108,7 +86,7 @@ export const PollProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 options: poll.options.map(option => 
                   option.id === optionId ? { ...option, votes: option.votes + 1 } : option
                 ),
-                votedBy: [...poll.votedBy, user.uid]
+                votedBy: [...poll.votedBy, 'anonymous']
               }
             : poll
         ));

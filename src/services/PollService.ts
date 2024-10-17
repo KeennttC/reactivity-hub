@@ -20,11 +20,11 @@ export class PollService {
     });
   }
 
-  async addPoll(question: string, options: string[], userId: string): Promise<void> {
+  async addPoll(question: string, options: string[]): Promise<void> {
     const newPoll: Omit<Poll, 'id'> = {
       question,
       options: options.map((text, index) => ({ id: `${index}`, text, votes: 0 })),
-      createdBy: userId,
+      createdBy: 'anonymous',
       votedBy: [],
     };
 
@@ -53,15 +53,12 @@ export class PollService {
     }
   }
 
-  async vote(pollId: string, optionId: string, userId: string): Promise<void> {
+  async vote(pollId: string, optionId: string): Promise<void> {
     const pollRef = ref(this.db, `polls/${pollId}`);
     const snapshot = await get(pollRef);
 
     if (snapshot.exists()) {
       const poll = snapshot.val();
-      if (poll.votedBy && poll.votedBy.includes(userId)) {
-        throw new Error("You have already voted on this poll.");
-      }
 
       const updatedOptions = poll.options.map((option: PollOption) =>
         option.id === optionId ? { ...option, votes: option.votes + 1 } : option
@@ -70,7 +67,7 @@ export class PollService {
       const updatedPoll = {
         ...poll,
         options: updatedOptions,
-        votedBy: [...(poll.votedBy || []), userId],
+        votedBy: [...(poll.votedBy || []), 'anonymous'],
       };
 
       await update(pollRef, updatedPoll);
