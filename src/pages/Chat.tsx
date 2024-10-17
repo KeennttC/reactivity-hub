@@ -102,77 +102,79 @@ const Chat: React.FC = () => {
   };
 
   return (
-    <div className={`max-w-2xl mx-auto bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg ${theme === 'dark' ? 'dark' : ''}`}>
-      <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-gray-800 dark:text-gray-200">Chat Room</h2>
-      <ScrollArea className="h-[350px] sm:h-[400px] w-full rounded-md border border-gray-300 dark:border-gray-600 p-2 sm:p-4 mb-4">
+    <div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 p-2 sm:p-4 md:p-6 rounded-lg shadow-lg">
+      <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-4 md:mb-6 text-gray-800 dark:text-gray-200">Chat Room</h2>
+      <ScrollArea className="h-[300px] sm:h-[350px] md:h-[400px] w-full rounded-md border border-gray-300 dark:border-gray-600 p-2 sm:p-4 mb-2 sm:mb-4">
         {messages.map((message: Message) => (
-          <div key={message.id} className={`mb-4 ${message.user === user?.username ? 'text-right' : 'text-left'}`}>
-            <div className={`inline-block p-2 sm:p-3 rounded-lg ${message.user === user?.username ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'}`}>
-              <p className="font-bold text-sm sm:text-base">{message.user} 
-                <span className={`ml-2 inline-block w-2 h-2 rounded-full ${userStatus[message.user] ? 'bg-green-500' : 'bg-gray-500'}`}></span>
+          <div key={message.id} className={`mb-2 sm:mb-4 ${message.user === user?.username ? 'text-right' : 'text-left'}`}>
+            <div className={`inline-block p-2 rounded-lg ${message.user === user?.username ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'}`}>
+              <p className="font-bold text-xs sm:text-sm">{message.user} 
+                <span className={`ml-1 sm:ml-2 inline-block w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${userStatus[message.user] ? 'bg-green-500' : 'bg-gray-500'}`}></span>
               </p>
               {message.replyTo && (
                 <div className="text-xs italic mb-1 opacity-75">
                   Replying to: {messages.find(m => m.id === message.replyTo)?.text.substring(0, 20)}...
                 </div>
               )}
-              <p className="text-sm sm:text-base">{message.text}</p>
+              <p className="text-xs sm:text-sm">{message.text}</p>
               <div className="flex justify-between items-center mt-1">
-                <p className="text-xs">{new Date(message.timestamp).toLocaleTimeString()}</p>
+                <p className="text-xxs sm:text-xs">{new Date(message.timestamp).toLocaleTimeString()}</p>
                 {message.user === user?.username && renderMessageStatus(message.status)}
               </div>
-              {message.user === user?.username && (
-                <div className="mt-2">
-                  <Button onClick={() => handleEdit(message.id, message.text)} size="sm" variant="ghost" className="mr-2">
-                    <Edit2 className="h-4 w-4 sm:h-5 sm:w-5" />
+              <div className="mt-1 sm:mt-2 flex justify-end space-x-1 sm:space-x-2">
+                {message.user === user?.username && (
+                  <>
+                    <Button onClick={() => handleEdit(message.id, message.text)} size="sm" variant="ghost" className="p-1">
+                      <Edit2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                    </Button>
+                    <Button onClick={() => handleDelete(message.id)} size="sm" variant="ghost" className="p-1">
+                      <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                    </Button>
+                  </>
+                )}
+                {message.user !== user?.username && (
+                  <Button onClick={() => handleReply(message.id)} size="sm" variant="ghost" className="p-1">
+                    <Reply className="h-3 w-3 sm:h-4 sm:w-4" />
                   </Button>
-                  <Button onClick={() => handleDelete(message.id)} size="sm" variant="ghost">
-                    <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
-                  </Button>
-                </div>
-              )}
-              {message.user !== user?.username && (
-                <Button onClick={() => handleReply(message.id)} size="sm" variant="ghost" className="mt-2">
-                  <Reply className="h-4 w-4 sm:h-5 sm:w-5" />
-                </Button>
-              )}
+                )}
+              </div>
             </div>
           </div>
         ))}
         {typingUsers.length > 0 && (
-          <div className="text-gray-500 dark:text-gray-400 italic text-sm">
+          <div className="text-gray-500 dark:text-gray-400 italic text-xs sm:text-sm">
             {typingUsers.join(', ')} {typingUsers.length === 1 ? 'is' : 'are'} typing...
           </div>
         )}
         <div ref={messagesEndRef} />
       </ScrollArea>
-      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center">
+      <form onSubmit={handleSubmit} className="flex flex-col space-y-2">
         {replyingTo && (
-          <div className="w-full mb-2 text-sm text-gray-500">
-            Replying to: {messages.find(m => m.id === replyingTo)?.text.substring(0, 20)}...
-            <Button onClick={() => setReplyingTo(null)} size="sm" variant="ghost" className="ml-2">
+          <div className="w-full text-xs sm:text-sm text-gray-500 flex items-center justify-between">
+            <span>Replying to: {messages.find(m => m.id === replyingTo)?.text.substring(0, 20)}...</span>
+            <Button onClick={() => setReplyingTo(null)} size="sm" variant="ghost" className="p-1">
               Cancel
             </Button>
           </div>
         )}
-        <Input
-          type="text"
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          className="flex-grow mr-0 sm:mr-2 mb-2 sm:mb-0 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border-gray-300 dark:border-gray-600"
-          placeholder="Type a message..."
-        />
-        <div className="flex items-center">
-          <Button type="button" onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="mr-2">
-            <Smile size={20} />
+        <div className="flex items-center space-x-2">
+          <Input
+            type="text"
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            className="flex-grow text-xs sm:text-sm bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border-gray-300 dark:border-gray-600"
+            placeholder="Type a message..."
+          />
+          <Button type="button" onClick={() => setShowEmojiPicker(!showEmojiPicker)} size="sm" className="p-2">
+            <Smile size={16} />
           </Button>
-          <Button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white">
+          <Button type="submit" size="sm" className="bg-blue-500 hover:bg-blue-600 text-white p-2">
             {editingMessageId ? 'Update' : 'Send'}
           </Button>
         </div>
       </form>
       {showEmojiPicker && (
-        <div className="absolute bottom-16 right-0 sm:right-auto">
+        <div className="absolute bottom-16 right-0 sm:right-auto z-10">
           <EmojiPicker onEmojiClick={handleEmojiClick} />
         </div>
       )}
