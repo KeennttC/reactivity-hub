@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from 'firebase/firestore';
 
 interface User {
   id: string;
@@ -59,6 +59,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(null);
       }
     });
+
+    // Fetch all users
+    const fetchUsers = async () => {
+      const usersCollection = collection(db, 'users');
+      const userSnapshot = await getDocs(usersCollection);
+      const userList = userSnapshot.docs.map(doc => doc.data() as User);
+      setUsers(userList);
+    };
+
+    fetchUsers();
 
     return () => unsubscribe();
   }, []);

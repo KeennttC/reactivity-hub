@@ -22,7 +22,7 @@ const AppContent: React.FC = () => {
     <div className={`min-h-screen ${theme === 'dark' ? 'bg-gray-900 text-gray-100' : 'bg-gray-100 text-gray-900'}`}>
       <Navbar />
       <UserSidebar />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 ml-16">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />

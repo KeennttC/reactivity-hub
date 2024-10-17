@@ -7,7 +7,7 @@ import { useTheme } from '../contexts/ThemeContext';
 
 const UserSidebar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, users } = useAuth();
   const { userStatus } = useChat();
   const { theme } = useTheme();
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -24,6 +24,8 @@ const UserSidebar: React.FC = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  if (!user) return null; // Don't render if user is not logged in
 
   return (
     <>
@@ -42,11 +44,11 @@ const UserSidebar: React.FC = () => {
       >
         <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Users</h2>
         <ScrollArea className="h-[calc(100vh-100px)]">
-          {Object.entries(userStatus).map(([username, status]) => (
-            <div key={username} className="flex items-center mb-2 text-gray-800 dark:text-gray-200">
+          {users.map((registeredUser) => (
+            <div key={registeredUser.id} className="flex items-center mb-2 text-gray-800 dark:text-gray-200">
               <User className="mr-2" size={18} />
-              <span>{username}</span>
-              <span className={`ml-auto w-3 h-3 rounded-full ${status ? 'bg-green-500' : 'bg-gray-400'}`}></span>
+              <span>{registeredUser.username}</span>
+              <span className={`ml-auto w-3 h-3 rounded-full ${userStatus[registeredUser.username] ? 'bg-green-500' : 'bg-gray-400'}`}></span>
             </div>
           ))}
         </ScrollArea>

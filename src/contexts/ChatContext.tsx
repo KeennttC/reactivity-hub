@@ -24,7 +24,7 @@ const ChatContext = createContext<ChatContextType | undefined>(undefined);
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [userStatus, setUserStatus] = useState<{ [key: string]: boolean }>({});
-  const { user } = useAuth();
+  const { user, users } = useAuth();
 
   useEffect(() => {
     const firebaseConfig = {
@@ -74,6 +74,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUserStatus(prevStatus => ({ ...prevStatus, [snapshot.key || '']: data.online }));
     });
 
+    // Initialize user statuses
+    users.forEach(user => {
+      setUserStatus(prevStatus => ({ ...prevStatus, [user.username]: false }));
+    });
+
     // Set user status to online when component mounts
     if (user) {
       set(ref(database, `userStatus/${user.username}`), { online: true });
@@ -89,7 +94,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         set(ref(database, `userStatus/${user.username}`), { online: false });
       }
     };
-  }, [user]);
+  }, [user, users]);
 
   const sendMessage = (text: string) => {
     if (user) {
