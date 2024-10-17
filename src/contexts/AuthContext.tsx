@@ -10,7 +10,6 @@ interface User {
   email: string;
   votedPolls: string[];
   uid: string;
-  avatarUrl?: string;
 }
 
 interface AuthContextType {
