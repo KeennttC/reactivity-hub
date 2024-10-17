@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, getDoc, collection, getDocs, updateDoc } from 'firebase/firestore';
 
 interface User {
   id: string;
@@ -9,6 +9,7 @@ interface User {
   email: string;
   votedPolls: string[];
   uid: string;
+  avatarUrl?: string;
 }
 
 interface AuthContextType {
@@ -17,6 +18,7 @@ interface AuthContextType {
   register: (email: string, password: string, username: string) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateProfile: (userId: string, updates: Partial<User>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -25,6 +27,7 @@ const AuthContext = createContext<AuthContextType>({
   register: async () => {},
   login: async () => {},
   logout: async () => {},
+  updateProfile: async () => {},
 });
 
 // Initialize Firebase app
@@ -110,8 +113,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const updateProfile = async (userId: string, updates: Partial<User>) => {
+    try {
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, updates);
+      if (user && user.id === userId) {
+        setUser({ ...user, ...updates });
+      }
+      setUsers(users.map(u => u.id === userId ? { ...u, ...updates } : u));
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      throw new Error('Profile update failed. Please try again.');
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, users, register, login, logout }}>
+    <AuthContext.Provider value={{ user, users, register, login, logout, updateProfile }}>
       {children}
     </AuthContext.Provider>
   );

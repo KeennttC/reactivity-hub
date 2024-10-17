@@ -4,15 +4,16 @@ import { useChat } from '../contexts/ChatContext';
 import { Button } from "../components/ui/button"
 import { Input } from "../components/ui/input"
 import { ScrollArea } from "../components/ui/scroll-area"
-import { Trash2, Edit2 } from 'lucide-react';
+import { Trash2, Edit2, Smile } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import EmojiPicker from 'emoji-picker-react';
 
 const Chat: React.FC = () => {
   const [newMessage, setNewMessage] = useState('');
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
-  const [isTyping, setIsTyping] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const { user } = useAuth();
-  const { messages, sendMessage, editMessage, deleteMessage, userStatus, setUserTyping } = useChat();
+  const { messages, sendMessage, editMessage, deleteMessage, userStatus, setUserTyping, typingUsers } = useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const { theme } = useTheme();
@@ -55,6 +56,11 @@ const Chat: React.FC = () => {
     deleteMessage(messageId);
   };
 
+  const handleEmojiClick = (emojiObject: any) => {
+    setNewMessage(prev => prev + emojiObject.emoji);
+    setShowEmojiPicker(false);
+  };
+
   return (
     <div className={`max-w-2xl mx-auto bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg ${theme === 'dark' ? 'dark' : ''}`}>
       <h2 className="text-3xl font-bold mb-6 text-gray-800 dark:text-gray-200">Chat Room</h2>
@@ -80,12 +86,14 @@ const Chat: React.FC = () => {
             </div>
           </div>
         ))}
-        {isTyping && (
-          <div className="text-gray-500 dark:text-gray-400 italic">Someone is typing...</div>
+        {typingUsers.length > 0 && (
+          <div className="text-gray-500 dark:text-gray-400 italic">
+            {typingUsers.join(', ')} {typingUsers.length === 1 ? 'is' : 'are'} typing...
+          </div>
         )}
         <div ref={messagesEndRef} />
       </ScrollArea>
-      <form onSubmit={handleSubmit} className="flex">
+      <form onSubmit={handleSubmit} className="flex items-center">
         <Input
           type="text"
           value={newMessage}
@@ -93,10 +101,18 @@ const Chat: React.FC = () => {
           className="flex-grow mr-2 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border-gray-300 dark:border-gray-600"
           placeholder="Type a message..."
         />
+        <Button type="button" onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="mr-2">
+          <Smile size={20} />
+        </Button>
         <Button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white">
           {editingMessageId ? 'Update' : 'Send'}
         </Button>
       </form>
+      {showEmojiPicker && (
+        <div className="absolute bottom-16 right-0">
+          <EmojiPicker onEmojiClick={handleEmojiClick} />
+        </div>
+      )}
       <audio ref={audioRef} src="/notification.mp3" />
     </div>
   );

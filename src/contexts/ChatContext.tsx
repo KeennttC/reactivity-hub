@@ -17,6 +17,7 @@ interface ChatContextType {
   deleteMessage: (id: string) => void;
   userStatus: { [key: string]: boolean };
   setUserTyping: (isTyping: boolean) => void;
+  typingUsers: string[];
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -24,6 +25,7 @@ const ChatContext = createContext<ChatContextType | undefined>(undefined);
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [userStatus, setUserStatus] = useState<{ [key: string]: boolean }>({});
+  const [typingUsers, setTypingUsers] = useState<string[]>([]);
   const { user, users } = useAuth();
 
   useEffect(() => {
@@ -42,6 +44,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const database = getDatabase(app);
     const messagesRef = ref(database, 'messages');
     const userStatusRef = ref(database, 'userStatus');
+    const typingRef = ref(database, 'typing');
 
     const unsubscribeMessages = onChildAdded(messagesRef, (snapshot: DataSnapshot) => {
       const data = snapshot.val();
@@ -69,30 +72,21 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setMessages((prevMessages) => prevMessages.filter(msg => msg.id !== snapshot.key));
     });
 
-    const unsubscribeUserStatus = onChildChanged(userStatusRef, (snapshot: DataSnapshot) => {
-      const data = snapshot.val();
-      setUserStatus(prevStatus => ({ ...prevStatus, [snapshot.key || '']: data.online }));
+    const typingListener = onChildChanged(typingRef, (snapshot: DataSnapshot) => {
+      const username = snapshot.key;
+      const isTyping = snapshot.val();
+      if (isTyping && username && !typingUsers.includes(username)) {
+        setTypingUsers(prev => [...prev, username]);
+      } else if (!isTyping && username) {
+        setTypingUsers(prev => prev.filter(user => user !== username));
+      }
     });
-
-    // Initialize user statuses
-    users.forEach(user => {
-      setUserStatus(prevStatus => ({ ...prevStatus, [user.username]: false }));
-    });
-
-    // Set user status to online when component mounts
-    if (user) {
-      set(ref(database, `userStatus/${user.username}`), { online: true });
-    }
 
     return () => {
       unsubscribeMessages();
       unsubscribeMessageChanges();
       unsubscribeMessageRemovals();
-      unsubscribeUserStatus();
-      // Set user status to offline when component unmounts
-      if (user) {
-        set(ref(database, `userStatus/${user.username}`), { online: false });
-      }
+      typingListener();
     };
   }, [user, users]);
 
@@ -131,13 +125,13 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const setUserTyping = (isTyping: boolean) => {
     if (user) {
       const database = getDatabase();
-      const userTypingRef = ref(database, `userTyping/${user.username}`);
-      set(userTypingRef, { isTyping });
+      const typingRef = ref(database, `typing/${user.username}`);
+      set(typingRef, isTyping);
     }
   };
 
   return (
-    <ChatContext.Provider value={{ messages, sendMessage, editMessage, deleteMessage, userStatus, setUserTyping }}>
+    <ChatContext.Provider value={{ messages, sendMessage, editMessage, deleteMessage, userStatus, setUserTyping, typingUsers }}>
       {children}
     </ChatContext.Provider>
   );
