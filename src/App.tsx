@@ -10,7 +10,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Chat from './pages/Chat';
 import Poll from './pages/Poll';
-import UserList from './components/UserList';
+import UserSidebar from './components/UserSidebar';
 import './App.css';
 
 const queryClient = new QueryClient();
@@ -21,16 +21,14 @@ const AppContent: React.FC = () => {
   return (
     <div className={`min-h-screen ${theme === 'dark' ? 'bg-gray-900 text-gray-100' : 'bg-gray-100 text-gray-900'}`}>
       <Navbar />
-      <div className="container mx-auto px-4 py-8 flex">
-        <UserList />
-        <div className="flex-grow">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/chat" element={<Chat />} />
-            <Route path="/poll" element={<Poll />} />
-          </Routes>
-        </div>
+      <UserSidebar />
+      <div className="container mx-auto px-4 py-8">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/chat" element={<Chat />} />
+          <Route path="/poll" element={<Poll />} />
+        </Routes>
       </div>
     </div>
   );
