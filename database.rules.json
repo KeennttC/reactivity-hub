@@ -18,9 +18,7 @@
     },
     "userStatus": {
       ".read": "auth != null",
-      "$uid": {
-        ".write": "$uid === auth.uid"
-      }
+      ".write": "auth != null"
     },
     "users": {
       ".read": "auth != null",
