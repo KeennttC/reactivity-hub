@@ -16,7 +16,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background: linear-gradient(to bottom, #000000, #1a1a2e);
   min-height: 100vh;
-  color: #4db8ff; /* Darker blue for better readability */
+  color: #4db8ff;
+}
+
+.dark body {
+  background: linear-gradient(to bottom, #000000, #0a0a14);
+  color: #a0d8ff;
 }
 
 .font-tech-noir {
@@ -44,6 +49,10 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
+.dark .bg-glassmorphism {
+  background: rgba(0, 0, 0, 0.3);
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
@@ -60,4 +69,24 @@ code {
 
 .poll-result-bar {
   animation: pollResultsAnimation 1s ease-out;
+}
+
+.dark .text-blue-800 {
+  color: #a0d8ff;
+}
+
+.dark .bg-blue-500 {
+  background-color: #3b82f6;
+}
+
+.dark .bg-blue-700 {
+  background-color: #1d4ed8;
+}
+
+.dark .hover\:bg-blue-600:hover {
+  background-color: #2563eb;
+}
+
+.dark .border-blue-300 {
+  border-color: #93c5fd;
 }

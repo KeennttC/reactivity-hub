@@ -75,7 +75,7 @@ const Poll: React.FC = () => {
               onChange={(e) => setNewPollQuestion(e.target.value)}
               placeholder="Enter poll question"
               required
-              className="bg-gray-800 text-blue-100 border-blue-300 rounded-lg p-2"
+              className="bg-gray-800 text-blue-800 border-blue-300 rounded-lg p-2"
             />
             {newPollOptions.map((option, index) => (
               <Input
@@ -89,7 +89,7 @@ const Poll: React.FC = () => {
                 }}
                 placeholder={`Option ${index + 1}`}
                 required
-                className="bg-gray-800 text-blue-100 border-blue-300 rounded-lg p-2"
+                className="bg-gray-800 text-blue-800 border-blue-300 rounded-lg p-2"
               />
             ))}
             <Button
@@ -117,15 +117,15 @@ const Poll: React.FC = () => {
               <div className="space-y-4">
                 {poll.options.map((option) => (
                   <div key={option.id} className="flex items-center justify-between">
-                    <span className="text-blue-100">{option.text}</span>
+                    <span className="text-blue-800">{option.text}</span>
                     <div className="flex items-center">
                       <div className="w-48 bg-gray-700 rounded-full h-4 mr-2 overflow-hidden">
                         <div
-                          className="bg-blue-500 h-4 rounded-full transition-all duration-500 ease-out"
+                          className="bg-blue-500 h-4 rounded-full transition-all duration-500 ease-out poll-result-bar"
                           style={{ width: `${(option.votes / poll.options.reduce((sum, o) => sum + o.votes, 0)) * 100}%` }}
                         ></div>
                       </div>
-                      <span className="text-sm text-blue-300 w-12 text-right">{option.votes} votes</span>
+                      <span className="text-sm text-blue-800 w-12 text-right">{option.votes} votes</span>
                       <Button
                         onClick={() => vote(poll.id, option.id)}
                         variant="outline"

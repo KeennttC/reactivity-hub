@@ -13,10 +13,14 @@ const Chat: React.FC = () => {
   const { user } = useAuth();
   const { messages, sendMessage, editMessage, deleteMessage, userStatus, setUserTyping } = useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    if (messages.length > 0 && messages[messages.length - 1].user !== user?.username) {
+      audioRef.current?.play();
+    }
+  }, [messages, user]);
 
   useEffect(() => {
     let typingTimer: NodeJS.Timeout;
@@ -91,6 +95,7 @@ const Chat: React.FC = () => {
           {editingMessageId ? 'Update' : 'Send'}
         </Button>
       </form>
+      <audio ref={audioRef} src="/notification.mp3" />
     </div>
   );
 };
