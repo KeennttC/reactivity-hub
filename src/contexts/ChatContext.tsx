@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, push, onChildAdded, onChildChanged, onChildRemoved, set, remove, DataSnapshot, onValue } from 'firebase/database';
+import { getDatabase, ref, push, onChildAdded, onChildChanged, onChildRemoved, set, remove, get, DataSnapshot, onValue } from 'firebase/database';
 import { useAuth } from './AuthContext';
 
 interface Reaction {
@@ -97,7 +97,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     });
 
-    // Add listener for user status changes
     const userStatusListener = onValue(userStatusRef, (snapshot: DataSnapshot) => {
       const statusData = snapshot.val();
       setUserStatus(statusData || {});
@@ -163,26 +162,21 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const messageRef = ref(database, `messages/${messageId}`);
       const newReaction: Reaction = { emoji, user: user.username };
       
-      // Get the current message
       get(messageRef).then((snapshot) => {
         if (snapshot.exists()) {
           const messageData = snapshot.val();
           const reactions = messageData.reactions || [];
           
-          // Check if the user has already reacted with this emoji
           const existingReactionIndex = reactions.findIndex(
             (r: Reaction) => r.user === user.username && r.emoji === emoji
           );
           
           if (existingReactionIndex !== -1) {
-            // Remove the reaction if it already exists
             reactions.splice(existingReactionIndex, 1);
           } else {
-            // Add the new reaction
             reactions.push(newReaction);
           }
           
-          // Update the message with the new reactions
           set(messageRef, { ...messageData, reactions });
         }
       });
