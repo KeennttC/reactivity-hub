@@ -1,8 +1,19 @@
 {
   "rules": {
-    "messages": {
+    "polls": {
       ".read": "auth != null",
-      ".write": "auth != null"
+      ".write": "auth != null",
+      "$pollId": {
+        ".validate": "newData.hasChildren(['question', 'options', 'createdBy', 'votedBy'])",
+        "createdBy": {
+          ".validate": "newData.val() === auth.uid"
+        },
+        "votedBy": {
+          "$uid": {
+            ".validate": "$uid === auth.uid"
+          }
+        }
+      }
     }
   }
 }

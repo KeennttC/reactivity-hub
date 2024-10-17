@@ -72,12 +72,22 @@ export const PollProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const db = getDatabase();
     const pollsRef = ref(db, 'polls');
-    push(pollsRef, newPoll);
-
-    toast({
-      title: "Success",
-      description: "Poll created successfully",
-    });
+    
+    push(pollsRef, newPoll)
+      .then(() => {
+        toast({
+          title: "Success",
+          description: "Poll created successfully",
+        });
+      })
+      .catch((error) => {
+        console.error("Error creating poll:", error);
+        toast({
+          title: "Error",
+          description: "Failed to create poll. Please try again.",
+          variant: "destructive",
+        });
+      });
   };
 
   const editPoll = (pollId: string, question: string, options: string[]) => {
