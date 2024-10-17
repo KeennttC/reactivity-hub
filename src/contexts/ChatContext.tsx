@@ -8,11 +8,13 @@ interface Message {
   user: string;
   text: string;
   timestamp: number;
+  replyTo?: string;
+  status: 'sent' | 'delivered' | 'seen';
 }
 
 interface ChatContextType {
   messages: Message[];
-  sendMessage: (text: string) => void;
+  sendMessage: (text: string, replyTo?: string | null) => void;
   editMessage: (id: string, newText: string) => void;
   deleteMessage: (id: string) => void;
   userStatus: { [key: string]: boolean };
@@ -52,7 +54,9 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: snapshot.key || '',
         user: data.user,
         text: data.text,
-        timestamp: data.timestamp
+        timestamp: data.timestamp,
+        replyTo: data.replyTo,
+        status: data.status || 'sent'
       };
       setMessages((prevMessages) => [...prevMessages, message]);
     });
@@ -63,7 +67,9 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: snapshot.key || '',
         user: data.user,
         text: data.text,
-        timestamp: data.timestamp
+        timestamp: data.timestamp,
+        replyTo: data.replyTo,
+        status: data.status || 'sent'
       };
       setMessages((prevMessages) => prevMessages.map(msg => msg.id === updatedMessage.id ? updatedMessage : msg));
     });
@@ -90,14 +96,16 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, [user, users]);
 
-  const sendMessage = (text: string) => {
+  const sendMessage = (text: string, replyTo: string | null = null) => {
     if (user) {
       const database = getDatabase();
       const messagesRef = ref(database, 'messages');
       push(messagesRef, {
         user: user.username,
         text: text,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        replyTo: replyTo,
+        status: 'sent'
       });
     }
   };
@@ -109,7 +117,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       set(messageRef, {
         user: user.username,
         text: newText,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        status: 'sent'
       });
     }
   };

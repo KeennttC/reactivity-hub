@@ -4,14 +4,24 @@ import { useChat } from '../contexts/ChatContext';
 import { Button } from "../components/ui/button"
 import { Input } from "../components/ui/input"
 import { ScrollArea } from "../components/ui/scroll-area"
-import { Trash2, Edit2, Smile } from 'lucide-react';
+import { Trash2, Edit2, Smile, Reply, Check, CheckCheck } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import EmojiPicker from 'emoji-picker-react';
+
+interface Message {
+  id: string;
+  user: string;
+  text: string;
+  timestamp: number;
+  replyTo?: string;
+  status: 'sent' | 'delivered' | 'seen';
+}
 
 const Chat: React.FC = () => {
   const [newMessage, setNewMessage] = useState('');
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const { user } = useAuth();
   const { messages, sendMessage, editMessage, deleteMessage, userStatus, setUserTyping, typingUsers } = useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -55,7 +65,8 @@ const Chat: React.FC = () => {
         editMessage(editingMessageId, newMessage);
         setEditingMessageId(null);
       } else {
-        sendMessage(newMessage);
+        sendMessage(newMessage, replyingTo);
+        setReplyingTo(null);
       }
       setNewMessage('');
     }
@@ -70,23 +81,46 @@ const Chat: React.FC = () => {
     deleteMessage(messageId);
   };
 
+  const handleReply = (messageId: string) => {
+    setReplyingTo(messageId);
+  };
+
   const handleEmojiClick = (emojiObject: any) => {
     setNewMessage(prev => prev + emojiObject.emoji);
     setShowEmojiPicker(false);
+  };
+
+  const renderMessageStatus = (status: 'sent' | 'delivered' | 'seen') => {
+    switch (status) {
+      case 'sent':
+        return <Check className="h-4 w-4 text-gray-400" />;
+      case 'delivered':
+        return <CheckCheck className="h-4 w-4 text-gray-400" />;
+      case 'seen':
+        return <CheckCheck className="h-4 w-4 text-blue-500" />;
+    }
   };
 
   return (
     <div className={`max-w-2xl mx-auto bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg ${theme === 'dark' ? 'dark' : ''}`}>
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-gray-800 dark:text-gray-200">Chat Room</h2>
       <ScrollArea className="h-[350px] sm:h-[400px] w-full rounded-md border border-gray-300 dark:border-gray-600 p-2 sm:p-4 mb-4">
-        {messages.map((message) => (
+        {messages.map((message: Message) => (
           <div key={message.id} className={`mb-4 ${message.user === user?.username ? 'text-right' : 'text-left'}`}>
             <div className={`inline-block p-2 sm:p-3 rounded-lg ${message.user === user?.username ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'}`}>
               <p className="font-bold text-sm sm:text-base">{message.user} 
                 <span className={`ml-2 inline-block w-2 h-2 rounded-full ${userStatus[message.user] ? 'bg-green-500' : 'bg-gray-500'}`}></span>
               </p>
+              {message.replyTo && (
+                <div className="text-xs italic mb-1 opacity-75">
+                  Replying to: {messages.find(m => m.id === message.replyTo)?.text.substring(0, 20)}...
+                </div>
+              )}
               <p className="text-sm sm:text-base">{message.text}</p>
-              <p className="text-xs mt-1">{new Date(message.timestamp).toLocaleTimeString()}</p>
+              <div className="flex justify-between items-center mt-1">
+                <p className="text-xs">{new Date(message.timestamp).toLocaleTimeString()}</p>
+                {message.user === user?.username && renderMessageStatus(message.status)}
+              </div>
               {message.user === user?.username && (
                 <div className="mt-2">
                   <Button onClick={() => handleEdit(message.id, message.text)} size="sm" variant="ghost" className="mr-2">
@@ -96,6 +130,11 @@ const Chat: React.FC = () => {
                     <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
                   </Button>
                 </div>
+              )}
+              {message.user !== user?.username && (
+                <Button onClick={() => handleReply(message.id)} size="sm" variant="ghost" className="mt-2">
+                  <Reply className="h-4 w-4 sm:h-5 sm:w-5" />
+                </Button>
               )}
             </div>
           </div>
@@ -108,6 +147,14 @@ const Chat: React.FC = () => {
         <div ref={messagesEndRef} />
       </ScrollArea>
       <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center">
+        {replyingTo && (
+          <div className="w-full mb-2 text-sm text-gray-500">
+            Replying to: {messages.find(m => m.id === replyingTo)?.text.substring(0, 20)}...
+            <Button onClick={() => setReplyingTo(null)} size="sm" variant="ghost" className="ml-2">
+              Cancel
+            </Button>
+          </div>
+        )}
         <Input
           type="text"
           value={newMessage}
