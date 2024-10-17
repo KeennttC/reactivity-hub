@@ -5,7 +5,7 @@ import { Input } from "./ui/input";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "./ui/card";
 import { Label } from "./ui/label";
-import { User, UserCircle, Camera, Check } from 'lucide-react';
+import { User, UserCircle, Camera } from 'lucide-react';
 import { useToast } from "../hooks/use-toast";
 
 const ProfileCustomization: React.FC = () => {
@@ -22,7 +22,6 @@ const ProfileCustomization: React.FC = () => {
         toast({
           title: "Profile Updated",
           description: "Your profile has been successfully updated.",
-          icon: <Check className="h-4 w-4" />,
         });
       } catch (error) {
         toast({
