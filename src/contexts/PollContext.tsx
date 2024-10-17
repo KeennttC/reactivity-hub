@@ -3,28 +3,8 @@ import { useAuth } from './AuthContext';
 import { getDatabase, ref, push, onValue, remove, update, get } from 'firebase/database';
 import { getApp } from 'firebase/app';
 import { useToast } from "../hooks/use-toast"
-
-interface PollOption {
-  id: string;
-  text: string;
-  votes: number;
-}
-
-interface Poll {
-  id: string;
-  question: string;
-  options: PollOption[];
-  createdBy: string;
-  votedBy: string[];
-}
-
-interface PollContextType {
-  polls: Poll[];
-  addPoll: (question: string, options: string[]) => void;
-  editPoll: (pollId: string, question: string, options: string[]) => void;
-  vote: (pollId: string, optionId: string) => void;
-  removePoll: (pollId: string) => void;
-}
+import { PollService } from '../services/PollService';
+import { Poll, PollContextType } from '../types/poll';
 
 const PollContext = createContext<PollContextType | undefined>(undefined);
 
@@ -32,30 +12,18 @@ export const PollProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [polls, setPolls] = useState<Poll[]>([]);
   const { user } = useAuth();
   const { toast } = useToast();
+  const pollService = new PollService();
 
   useEffect(() => {
-    const app = getApp();
-    const db = getDatabase(app);
-    const pollsRef = ref(db, 'polls');
-
-    const unsubscribe = onValue(pollsRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const loadedPolls = Object.entries(data).map(([key, value]: [string, any]) => ({
-          id: key,
-          ...value,
-        }));
-        setPolls(loadedPolls);
-      } else {
-        setPolls([]);
-      }
+    const unsubscribe = pollService.subscribeToPolls((loadedPolls) => {
+      setPolls(loadedPolls);
     });
 
     return () => unsubscribe();
   }, []);
 
   const addPoll = (question: string, options: string[]) => {
-    if (!user) {
+    if (!user || !user.uid) {
       toast({
         title: "Error",
         description: "You must be logged in to create a poll.",
@@ -64,18 +32,7 @@ export const PollProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    const newPoll: Poll = {
-      id: Date.now().toString(),
-      question,
-      options: options.map((text, index) => ({ id: `${index}`, text, votes: 0 })),
-      createdBy: user.uid,
-      votedBy: [],
-    };
-
-    const db = getDatabase();
-    const pollsRef = ref(db, 'polls');
-    
-    push(pollsRef, newPoll)
+    pollService.addPoll(question, options, user.uid)
       .then(() => {
         toast({
           title: "Success",
@@ -93,42 +50,25 @@ export const PollProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const editPoll = (pollId: string, question: string, options: string[]) => {
-    const db = getDatabase();
-    const pollRef = ref(db, `polls/${pollId}`);
-
-    get(pollRef).then((snapshot) => {
-      if (snapshot.exists()) {
-        const existingPoll = snapshot.val();
-        const updatedPoll = {
-          ...existingPoll,
-          question,
-          options: options.map((text, index) => {
-            const existingOption = existingPoll.options[index];
-            return existingOption ? { ...existingOption, text } : { id: `${index}`, text, votes: 0 };
-          }),
-        };
-
-        update(pollRef, updatedPoll)
-          .then(() => {
-            toast({
-              title: "Success",
-              description: "Poll updated successfully",
-            });
-          })
-          .catch((error) => {
-            console.error("Error updating poll:", error);
-            toast({
-              title: "Error",
-              description: "Failed to update poll. Please try again.",
-              variant: "destructive",
-            });
-          });
-      }
-    });
+    pollService.editPoll(pollId, question, options)
+      .then(() => {
+        toast({
+          title: "Success",
+          description: "Poll updated successfully",
+        });
+      })
+      .catch((error) => {
+        console.error("Error updating poll:", error);
+        toast({
+          title: "Error",
+          description: "Failed to update poll. Please try again.",
+          variant: "destructive",
+        });
+      });
   };
 
   const vote = (pollId: string, optionId: string) => {
-    if (!user) {
+    if (!user || !user.uid) {
       toast({
         title: "Error",
         description: "You must be logged in to vote.",
@@ -137,37 +77,7 @@ export const PollProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    const db = getDatabase();
-    const pollRef = ref(db, `polls/${pollId}`);
-
-    get(pollRef)
-      .then((snapshot) => {
-        if (snapshot.exists()) {
-          const poll = snapshot.val();
-          if (poll.votedBy && poll.votedBy.includes(user.uid)) {
-            toast({
-              title: "Error",
-              description: "You have already voted on this poll.",
-              variant: "destructive",
-            });
-            return;
-          }
-
-          const updatedOptions = poll.options.map((option: PollOption) =>
-            option.id === optionId ? { ...option, votes: option.votes + 1 } : option
-          );
-
-          const updatedPoll = {
-            ...poll,
-            options: updatedOptions,
-            votedBy: [...(poll.votedBy || []), user.uid],
-          };
-
-          return update(pollRef, updatedPoll);
-        } else {
-          throw new Error("Poll not found");
-        }
-      })
+    pollService.vote(pollId, optionId, user.uid)
       .then(() => {
         toast({
           title: "Success",
@@ -175,19 +85,17 @@ export const PollProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
       })
       .catch((error) => {
-        console.error("Error voting on poll:", error);
+        console.error("Error voting:", error);
         toast({
           title: "Error",
-          description: "Failed to record vote. Please try again.",
+          description: error.message || "Failed to record vote. Please try again.",
           variant: "destructive",
         });
       });
   };
 
   const removePoll = (pollId: string) => {
-    const db = getDatabase();
-    const pollRef = ref(db, `polls/${pollId}`);
-    remove(pollRef)
+    pollService.removePoll(pollId)
       .then(() => {
         toast({
           title: "Success",
