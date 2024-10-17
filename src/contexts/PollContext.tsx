@@ -1,5 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useAuth } from './AuthContext';
+import { getDatabase, ref, push, onValue, remove, update, get } from 'firebase/database';
+import { getApp } from 'firebase/app';
 import { useToast } from "../hooks/use-toast"
 import { PollService } from '../services/PollService';
 import { Poll, PollContextType } from '../types/poll';
@@ -13,24 +15,14 @@ export const PollProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const pollService = new PollService();
 
   useEffect(() => {
-    const fetchPolls = async () => {
-      try {
-        const loadedPolls = await pollService.getPolls();
-        setPolls(loadedPolls);
-      } catch (error) {
-        console.error("Error fetching polls:", error);
-        toast({
-          title: "Error",
-          description: "Failed to fetch polls. Please try again.",
-          variant: "destructive",
-        });
-      }
-    };
+    const unsubscribe = pollService.subscribeToPolls((loadedPolls) => {
+      setPolls(loadedPolls);
+    });
 
-    fetchPolls();
+    return () => unsubscribe();
   }, []);
 
-  const addPoll = async (question: string, options: string[]) => {
+  const addPoll = (question: string, options: string[]) => {
     if (!user || !user.uid) {
       toast({
         title: "Error",
@@ -40,21 +32,21 @@ export const PollProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    try {
-      const newPoll = await pollService.addPoll(question, options, user.uid);
-      setPolls(prevPolls => [...prevPolls, newPoll]);
-      toast({
-        title: "Success",
-        description: "Poll created successfully",
+    pollService.addPoll(question, options, user.uid)
+      .then(() => {
+        toast({
+          title: "Success",
+          description: "Poll created successfully",
+        });
+      })
+      .catch((error) => {
+        console.error("Error creating poll:", error);
+        toast({
+          title: "Error",
+          description: "Failed to create poll. Please try again.",
+          variant: "destructive",
+        });
       });
-    } catch (error) {
-      console.error("Error creating poll:", error);
-      toast({
-        title: "Error",
-        description: "Failed to create poll. Please try again.",
-        variant: "destructive",
-      });
-    }
   };
 
   const editPoll = (pollId: string, question: string, options: string[]) => {

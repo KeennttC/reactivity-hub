@@ -1,7 +1,5 @@
 {
   "rules": {
-    ".read": "auth != null",
-    ".write": "auth != null",
     "polls": {
       ".read": "auth != null",
       ".write": "auth != null",
@@ -16,10 +14,6 @@
           }
         }
       }
-    },
-    "messages": {
-      ".read": "auth != null",
-      ".write": "auth != null"
     }
   }
 }

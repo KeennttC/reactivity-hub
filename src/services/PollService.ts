@@ -4,20 +4,20 @@ import { Poll, PollOption } from '../types/poll';
 export class PollService {
   private db = getDatabase();
 
-  async getPolls(): Promise<Poll[]> {
+  subscribeToPolls(callback: (polls: Poll[]) => void) {
     const pollsRef = ref(this.db, 'polls');
-    const snapshot = await get(pollsRef);
-    if (snapshot.exists()) {
-      const polls: Poll[] = [];
-      snapshot.forEach((childSnapshot) => {
-        polls.push({
-          id: childSnapshot.key!,
-          ...childSnapshot.val()
-        });
-      });
-      return polls;
-    }
-    return [];
+    return onValue(pollsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const loadedPolls = Object.entries(data).map(([key, value]: [string, any]) => ({
+          id: key,
+          ...value,
+        }));
+        callback(loadedPolls);
+      } else {
+        callback([]);
+      }
+    });
   }
 
   async addPoll(question: string, options: string[], userId: string): Promise<void> {
