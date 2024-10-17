@@ -10,7 +10,7 @@ interface User {
   email: string;
   votedPolls: string[];
   uid: string;
-  avatarUrl?: string; // Add this line
+  avatarUrl?: string;
 }
 
 interface AuthContextType {
@@ -155,4 +155,3 @@ export const useAuth = () => {
   }
   return context;
 };
-
