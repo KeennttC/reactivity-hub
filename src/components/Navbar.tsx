@@ -27,8 +27,8 @@ const Navbar: React.FC = () => {
             {user ? (
               <>
                 <span className="text-cyan-300 font-tech-noir text-lg">Welcome, {user.username}</span>
-                <Link to="/chat" className="text-white hover:text-cyan-300 transition-colors duration-300 font-tech-noir text-lg">Chat</Link>
-                <Link to="/poll" className="text-white hover:text-cyan-300 transition-colors duration-300 font-tech-noir text-lg">Poll</Link>
+                <Link to="/chat" className="text-cyan-200 hover:text-cyan-400 transition-colors duration-300 font-tech-noir text-lg">Chat</Link>
+                <Link to="/poll" className="text-cyan-200 hover:text-cyan-400 transition-colors duration-300 font-tech-noir text-lg">Poll</Link>
                 <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition-colors duration-300 shadow-neon">Logout</button>
               </>
             ) : (

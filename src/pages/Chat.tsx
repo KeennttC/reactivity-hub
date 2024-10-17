@@ -31,8 +31,8 @@ const Chat: React.FC = () => {
           <div key={message.id} className={`mb-4 ${message.user === user?.username ? 'text-right' : 'text-left'}`}>
             <div className={`inline-block p-3 rounded-lg ${message.user === user?.username ? 'bg-cyan-800' : 'bg-gray-700'}`}>
               <p className="font-bold text-cyan-300">{message.user}</p>
-              <p className="text-white">{message.text}</p>
-              <p className="text-xs text-gray-400 mt-1">{new Date(message.timestamp).toLocaleTimeString()}</p>
+              <p className="text-cyan-100">{message.text}</p>
+              <p className="text-xs text-cyan-400 mt-1">{new Date(message.timestamp).toLocaleTimeString()}</p>
             </div>
           </div>
         ))}
@@ -43,7 +43,7 @@ const Chat: React.FC = () => {
           type="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          className="flex-grow mr-2 bg-gray-700 text-white border-cyan-300"
+          className="flex-grow mr-2 bg-gray-700 text-cyan-100 border-cyan-300"
           placeholder="Type a message..."
         />
         <Button type="submit" className="bg-cyan-500 hover:bg-cyan-600 text-white">
