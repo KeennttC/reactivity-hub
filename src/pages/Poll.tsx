@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePoll } from '../contexts/PollContext';
 import { Button } from "../components/ui/button"
 import { Input } from "../components/ui/input"
@@ -11,6 +11,15 @@ const Poll: React.FC = () => {
   const [newPollQuestion, setNewPollQuestion] = useState('');
   const [newPollOptions, setNewPollOptions] = useState(['', '']);
   const [editingPollId, setEditingPollId] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string>('');
+
+  useEffect(() => {
+    const storedUserId = localStorage.getItem('userId') || Math.random().toString(36).substr(2, 9);
+    setUserId(storedUserId);
+    if (!localStorage.getItem('userId')) {
+      localStorage.setItem('userId', storedUserId);
+    }
+  }, []);
 
   const handleAddPoll = (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,6 +128,7 @@ const Poll: React.FC = () => {
                         variant="outline"
                         size="sm"
                         className="ml-2"
+                        disabled={poll.votedBy.includes(userId)}
                       >
                         Vote
                       </Button>

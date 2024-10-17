@@ -53,12 +53,16 @@ export class PollService {
     }
   }
 
-  async vote(pollId: string, optionId: string): Promise<void> {
+  async vote(pollId: string, optionId: string, userId: string): Promise<void> {
     const pollRef = ref(this.db, `polls/${pollId}`);
     const snapshot = await get(pollRef);
 
     if (snapshot.exists()) {
       const poll = snapshot.val();
+      
+      if (poll.votedBy && poll.votedBy.includes(userId)) {
+        throw new Error("You have already voted on this poll.");
+      }
 
       const updatedOptions = poll.options.map((option: PollOption) =>
         option.id === optionId ? { ...option, votes: option.votes + 1 } : option
@@ -67,7 +71,7 @@ export class PollService {
       const updatedPoll = {
         ...poll,
         options: updatedOptions,
-        votedBy: [...(poll.votedBy || []), 'anonymous'],
+        votedBy: [...(poll.votedBy || []), userId],
       };
 
       await update(pollRef, updatedPoll);

@@ -72,13 +72,17 @@ export const PollProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const vote = (pollId: string, optionId: string) => {
-    pollService.vote(pollId, optionId)
+    const userId = localStorage.getItem('userId') || Math.random().toString(36).substr(2, 9);
+    if (!localStorage.getItem('userId')) {
+      localStorage.setItem('userId', userId);
+    }
+
+    pollService.vote(pollId, optionId, userId)
       .then(() => {
         toast({
           title: "Success",
           description: "Vote recorded successfully",
         });
-        // Update the polls state after voting
         setPolls(prevPolls => prevPolls.map(poll => 
           poll.id === pollId 
             ? {
@@ -86,7 +90,7 @@ export const PollProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 options: poll.options.map(option => 
                   option.id === optionId ? { ...option, votes: option.votes + 1 } : option
                 ),
-                votedBy: [...poll.votedBy, 'anonymous']
+                votedBy: [...poll.votedBy, userId]
               }
             : poll
         ));
